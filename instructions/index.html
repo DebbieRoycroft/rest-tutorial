@@ -2,6 +2,7 @@
 <h2>Suggestions for API design</h2>
 <h2>Intro to spring-boot</h2>
 <h2>Lets go</h2>
+<p>We're going to build a small sample application using Spring Boot. The application is for a leisure centre that wants to be able to show everyone the classes it offers, let its staff edit those classes and let customers book a place on a class</p>
 <p>In Eclipse, start a new spring starter project:</p>
 <img src="./screenshots/newproject.png"/>
 <p>Set up details of the project like this - we're using Java 1.8, and Maven to build
@@ -14,4 +15,87 @@ We're just going to select actuator and web for now, we can add more capabilitie
 <p>Now in a browser navigate to http://localhost:8080/health</p>
 <p>Hopefully you'll see something like this:</p>
 <img src="./screenshots/health-api.png"/>
+<p>Spring boot actuator has set up a number of URL endpoints automatically. 'health' is one of them.  You can see the others when in the console within the IDE (I've shortened the output lines a bit!):</p>
+<code>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/beans],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/env/{name:.*}],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/env],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/health],methods=[],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/metrics/{name:.*}],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/metrics],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/configprops],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/dump],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/info],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/autoconfig],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/mappings],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/shutdown],methods=[POST],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+... o.s.b.a.e.mvc.EndpointHandlerMapping     : Mapped "{[/trace],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...<br/>
+</code>
+<p>Try out some of the others</p>
+<p>OK. So far so good, let's add some of our own code now.</p>
+<p>For the REST service, we need two classes, the controller class that tells Spring what function will handle which URL/method and a data model class.</p>
+<p>I'm going to put the data model classes into their own package just to help keep things tidy, so I added timetable.model. Within that package, I created a simple data model class 'Event':</p>
+<code>
+package timetable.model;<br/>
+<br/>
+public class Event {<br/>
+	private Long id;<br/>
+	private String title;<br/>
+<br/>
+	public Event(Long id, String title) {<br/>
+		this.id = id;<br/>
+		this.title = title;<br/>
+	}<br/>
+<br/>
+	public Long getId() {<br/>
+		return id;<br/>
+	}<br/>
+<br/>
+	public String getTitle() {<br/>
+		return title;<br/>
+	}<br/>
+<br/>
+}<br/>
+</code>
+<p>We don't need any annotations on this class, or anything else to tell Spring how to handle it</p>
+<p>Now we need a controller class</p>
+<p>First of all we'll just add an API to return all events, this will be a GET method call to /timetable and will return a list of <code>Event</code>s</p>
+<p>Here's what it looks like (this is in the timetable package)</p>
+<code>
+package timetable;<br/>
+<br/>
+import java.util.ArrayList;<br/>
+import java.util.List;<br/>
+<br/>
+import org.springframework.stereotype.Controller;<br/>
+import org.springframework.web.bind.annotation.RequestMapping;<br/>
+import org.springframework.web.bind.annotation.RequestMethod;<br/>
+import org.springframework.web.bind.annotation.ResponseBody;<br/>
+<br/>
+import timetable.model.Event;<br/>
+<br/>
+@Controller<br/>
+@RequestMapping("/timetable")<br/>
+public class TimetableController {<br/>
+<br/>
+	@RequestMapping(method=RequestMethod.GET)<br/>
+	public @ResponseBody List<Event> getEvents(){<br/>
+		List<Event> events = new ArrayList<>();<br/>
+		events.add(new Event(1L,"Yoga"));<br/>
+		events.add(new Event(2L,"Boxercise"));<br/>
+		return events;<br/>
+<br/>		
+	}<br/>
+}</code>
+<p>The @Controller annotation tells Spring this is a Controller- it's mapping some endpoints.</p>
+<p>The @RequestMapping above the class definition gives the root mapping- so all calls to (in our case) http://localhost:8080/timetable will look in here to be processed</p>
+<p>The @RequestMapping above the getEvents() method tells Spring this is the method to use for a GET call, and the @ResponseBody annotation before the return type is very important- this tells Spring we want it to send back the body data as it is, we don't have a view defined (the same RequestMapping annotations get used for Spring MVC where Spring would expect to find a view class mapped).  Miss it off and you'll get an exception when you try to make your API request</p>
+<p>For now, the body of the method just creates a hard-wired List and returns it</p>
+<p>Save it all and run it back up (Eclipse should autobuild it for you on saving)</p>
+<p>In the console you should be able to see the new endpoint '/timetable' mapped:</p>
+<code>Mapped "{[/timetable],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" onto public java.util.List<timetable.model.Event> timetable.TimetableController.getEvents()</code>
+<p>Back in the browser http://localhost:8080/timetable should give you a string of JSON something like this:</p>
+<code>
+[{"id":1,"title":"Yoga"},{"id":2,"title":"Boxercise"}]
+</code> 
 <h2>Resources</h2>

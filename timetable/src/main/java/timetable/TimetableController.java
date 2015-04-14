@@ -1,7 +1,5 @@
 package timetable;
 
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,12 +17,8 @@ public class TimetableController {
 	@RequestMapping(method=RequestMethod.GET)
 	public @ResponseBody List<Event> getEvents(){
 		List<Event> events = new ArrayList<>();
-		events.add(new Event(1L,"Yoga",
-				LocalDateTime.of(2015, Month.APRIL, 23, 19, 00),
-				LocalDateTime.of(2015, Month.APRIL, 23, 20, 00)));
-		events.add(new Event(1L,"Boxercise",
-				LocalDateTime.of(2015, Month.APRIL, 23, 20, 00),
-				LocalDateTime.of(2015, Month.APRIL, 23, 21, 00)));
+		events.add(new Event(1L,"Yoga"));
+		events.add(new Event(2L,"Boxercise"));
 		return events;
 		
 	}
