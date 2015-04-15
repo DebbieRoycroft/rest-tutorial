@@ -4,6 +4,8 @@ public class Event {
 	private Long id;
 	private String title;
 
+	public Event() {}
+	
 	public Event(Long id, String title) {
 		this.id = id;
 		this.title = title;

@@ -98,4 +98,67 @@ public class TimetableController {<br/>
 <code>
 [{"id":1,"title":"Yoga"},{"id":2,"title":"Boxercise"}]
 </code> 
+<p>Next we'll implement some methods for the Event resource, these will use the URL http://localhost:8080/timetable/event</p>
+<p>First a little bit of refactoring- we'll move that List out of the getEvents method, and change it to be a map (so we can index individual Event objects). We'll initialise it in the class constructor.  The code now looks like this:</p>
+<code>
+	private Map<Long,Event> events;</br>
+</br>	
+	public TimetableController(){</br>
+		events = new HashMap<>();</br>
+		events.put(1L, new Event(1L,"Yoga"));</br>
+		events.put(2L, new Event(2L,"Boxercise"));</br>
+	}</br>
+</br>	
+	@RequestMapping(method=RequestMethod.GET)</br>
+	public @ResponseBody Collection<Event> getEvents(){</br>
+		return events.values();</br>
+</br>		
+	}</br>
+</code>
+<p>Now we can add a method to implement GET for an individual Event. The id of the event is used as part of the URL (this is the path variable).</p>
+<code>
+	
+	@RequestMapping(value="/event/{id}", method=RequestMethod.GET)
+	public @ResponseBody Event getEventById(@PathVariable Long id){
+		Event result = events.get(id);
+		if (result == null){
+			throw new EventNotFoundException(id);
+		}
+		return result;
+	}
+</code>	
+<p>If it can't find the event in the URL, it will throw an exception, this is annotated with HttpStatus.NOT_FOUND (404), which Spring will return for us if this exception is thrown</p>
+<code>
+@ResponseStatus(HttpStatus.NOT_FOUND)
+class EventNotFoundException extends RuntimeException {
+	private static final long serialVersionUID = -9174199038443186877L;
+
+	public EventNotFoundException(Long eventId){
+		super("could not find event '" + eventId + "'.");
+	}
+}
+</code>
+<p>http://localhost:8080/timetable/event/1 should give us back the yoga class, http://localhost:8080/timetable/event/2 the boxercise class</p>
+<p>Next, the POST method can add a new class to the container.  We generate the id automatically, and return the path to the generated event in the http header for the response</p>
+<code>
+	private final AtomicLong counter = new AtomicLong();
+	...
+	@RequestMapping(value="/event", method=RequestMethod.POST)
+	public ResponseEntity<?> addEvent(@RequestBody Event evt){
+		Long id = counter.incrementAndGet();
+		events.put(id, evt);
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setLocation(ServletUriComponentsBuilder
+				.fromCurrentRequest().path("/{id}")
+				.buildAndExpand(id).toUri());
+		return new ResponseEntity<>(null,httpHeaders, HttpStatus.CREATED);
+	}
+</code>
+<p>Finally, the DELETE method will remove an event</p>
+<code>	
+	@RequestMapping(value="/event/{id}", method=RequestMethod.DELETE)
+	public void deleteEvent(@PathVariable Long id){
+		events.remove(id);
+	}
+</code>
 <h2>Resources</h2>
