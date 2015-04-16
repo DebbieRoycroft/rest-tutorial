@@ -30,6 +30,7 @@ public class TimetableController {
 		events = new HashMap<>();
 		events.put(1L, new Event(1L,"Yoga"));
 		events.put(2L, new Event(2L,"Boxercise"));
+		counter.set(2L); //set the counter to the ID of the last added Event
 	}
 	
 	@RequestMapping(method=RequestMethod.GET)
@@ -51,11 +52,12 @@ public class TimetableController {
 	public ResponseEntity<?> addEvent(@RequestBody Event evt){
 		Long id = counter.incrementAndGet();
 		events.put(id, evt);
+		
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setLocation(ServletUriComponentsBuilder
 				.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(id).toUri());
-		return new ResponseEntity<>(null,httpHeaders, HttpStatus.CREATED);
+		return new ResponseEntity<>(evt,httpHeaders, HttpStatus.CREATED);
 	}
 	
 	@RequestMapping(value="/event/{id}", method=RequestMethod.DELETE)
