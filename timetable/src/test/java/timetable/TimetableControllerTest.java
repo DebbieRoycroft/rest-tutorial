@@ -2,6 +2,7 @@ package timetable;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -21,7 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.WebApplicationContext;
 
 import timetable.model.Event;
@@ -92,16 +93,44 @@ public class TimetableControllerTest {
 	public void createEvent() throws Exception {
 		String eventJson = json( new Event(
 				4L, "lane swimming"));
-		this.mockMvc.perform(post("/timetable/event")
+		MvcResult result = this.mockMvc.perform(post("/timetable/event")
 				.contentType(contentType)
 				.content(eventJson))
 				.andExpect(status().isCreated())
-				.andExpect(MockMvcResultMatchers.header().string("Location", is("http://localhost/timetable/event/3")))
 				.andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.id", is(4)))
-                .andExpect(jsonPath("$.title", is("lane swimming")));
+                .andExpect(jsonPath("$.title", is("lane swimming")))
+                .andReturn();
+		String createdPath = result.getResponse().getHeader("Location");
+		this.mockMvc.perform(get(createdPath))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.id", is(4)))
+			.andExpect(jsonPath("$.title", is("lane swimming")));
 	}
 	
+	@Test
+	public void testDeleteEvent() throws Exception {
+		String eventJson = json( new Event(
+				5L, "Pilates"));
+		MvcResult result = this.mockMvc.perform(post("/timetable/event")
+				.contentType(contentType)
+				.content(eventJson))
+				.andExpect(status().isCreated())
+				.andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.id", is(5)))
+                .andExpect(jsonPath("$.title", is("Pilates")))
+                .andReturn();
+		String createdLocation = result.getResponse().getHeader("Location");
+		this.mockMvc.perform(get(createdLocation))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.title", is("Pilates")));
+		
+		this.mockMvc.perform(delete(createdLocation))
+		.andExpect(status().isOk());
+		
+		this.mockMvc.perform(get(createdLocation))
+		.andExpect(status().isNotFound());
+	}
 	protected String json(Object o) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
