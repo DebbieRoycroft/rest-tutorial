@@ -78,8 +78,8 @@ We're just going to select actuator and web for now, we can add more capabilitie
 <br/><strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>class</font></strong>&nbsp;TimetableController&nbsp;{
 <br/>
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@RequestMapping</font>(method=RequestMethod.GET)
-<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<font color='#646464'>@ResponseBody</font>&nbsp;List<Event>&nbsp;getEvents(){
-<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List<Event>&nbsp;events&nbsp;=&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;ArrayList<>();
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<font color='#646464'>@ResponseBody</font>&nbsp;List&lt;Event&gt;&nbsp;getEvents(){
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List&lt;Event&gt;&nbsp;events&nbsp;=&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;ArrayList&lt;&gt;();
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events.add(<strong><font color='#7f0055'>new</font></strong>&nbsp;Event(1L,<font color='#2a00ff'>"Yoga"</font>));
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events.add(<strong><font color='#7f0055'>new</font></strong>&nbsp;Event(2L,<font color='#2a00ff'>"Boxercise"</font>));
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>return</font></strong>&nbsp;events;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -98,10 +98,10 @@ We're just going to select actuator and web for now, we can add more capabilitie
 </code> 
 <p>Next we'll implement some methods for the Event resource, these will use the URL http://localhost:8080/timetable/event</p>
 <p>First a little bit of refactoring- we'll move that List out of the getEvents method, and change it to be a map (so we can index individual Event objects). We'll initialise it in the class constructor.  The code now looks like this:</p>
-<div style='background:#FFFFFF; font-family: Courier New, Courier; font-size: 10pt; COLOR: #000000; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px;'>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>private</font></strong>&nbsp;Map<Long,Event>&nbsp;events;
+<div style='background:#FFFFFF; font-family: Courier New, Courier; font-size: 10pt; COLOR: #000000; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px;'>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>private</font></strong>&nbsp;Map&lt;Long,Event&gt;&nbsp;events;
 <br/>
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;TimetableController(){
-<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events&nbsp;=&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;HashMap<>();
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events&nbsp;=&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;HashMap&lt;&gt;();
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events.put(1L,&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;Event(1L,<font color='#2a00ff'>"Yoga"</font>));
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events.put(2L,&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;Event(2L,<font color='#2a00ff'>"Boxercise"</font>));
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;}
@@ -135,14 +135,14 @@ We're just going to select actuator and web for now, we can add more capabilitie
 <div style='background:#FFFFFF; font-family: Courier New, Courier; font-size: 10pt; COLOR: #000000; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px;'>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>private</font></strong>&nbsp;<strong><font color='#7f0055'>final</font></strong>&nbsp;AtomicLong&nbsp;counter&nbsp;=&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;AtomicLong();
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;...
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@RequestMapping</font>(value=<font color='#2a00ff'>"/event"</font>,&nbsp;method=RequestMethod.POST)
-<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;ResponseEntity<?>&nbsp;addEvent(<font color='#646464'>@RequestBody</font>&nbsp;Event&nbsp;evt){
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;ResponseEntity&lt;?&gt;&nbsp;addEvent(<font color='#646464'>@RequestBody</font>&nbsp;Event&nbsp;evt){
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Long&nbsp;id&nbsp;=&nbsp;counter.incrementAndGet();
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events.put(id,&nbsp;evt);
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HttpHeaders&nbsp;httpHeaders&nbsp;=&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;HttpHeaders();
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;httpHeaders.setLocation(ServletUriComponentsBuilder
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.fromCurrentRequest().path(<font color='#2a00ff'>"/{id}"</font>)
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.buildAndExpand(id).toUri());
-<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>return</font></strong>&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;ResponseEntity<>(evt,httpHeaders,&nbsp;HttpStatus.CREATED);
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>return</font></strong>&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;ResponseEntity&lt;&gt;(evt,httpHeaders,&nbsp;HttpStatus.CREATED);
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;}<div style='text-align:right;BORDER-TOP: #ccc 1px dashed'><a href="http://www.togotutor.com/code-to-html/java-to-html.php" target="_blank">Code Formatted by ToGoTutor</a></div></div>
 <p>Because the Event is now included as a RequestBody, we do need to add a default constructor to the event class</p>
 <div style='background:#FFFFFF; font-family: Courier New, Courier; font-size: 10pt; COLOR: #000000; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px;'><strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>class</font></strong>&nbsp;Event&nbsp;{
@@ -161,5 +161,7 @@ We're just going to select actuator and web for now, we can add more capabilitie
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>void</font></strong>&nbsp;deleteEvent(<font color='#646464'>@PathVariable</font>&nbsp;Long&nbsp;id){
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events.remove(id);
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;}<div style='text-align:right;BORDER-TOP: #ccc 1px dashed'><a href="http://www.togotutor.com/code-to-html/java-to-html.php" target="_blank">Code Formatted by ToGoTutor</a></div></div>
+<p>Now we have all these interfaces implemented, we can test them manually, using Chrome REST Console, or cURL, but it would be good to get some automated tests.  Spring/JUnit test framework can be used for this</p>
+
 <h2>Resources</h2>
 
