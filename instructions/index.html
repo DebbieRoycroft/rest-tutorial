@@ -162,6 +162,138 @@ We're just going to select actuator and web for now, we can add more capabilitie
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events.remove(id);
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;}<div style='text-align:right;BORDER-TOP: #ccc 1px dashed'><a href="http://www.togotutor.com/code-to-html/java-to-html.php" target="_blank">Code Formatted by ToGoTutor</a></div></div>
 <p>Now we have all these interfaces implemented, we can test them manually, using Chrome REST Console, or cURL, but it would be good to get some automated tests.  Spring/JUnit test framework can be used for this</p>
-
+<p>When we created the project we automatically got a src/test/java folder, with a TimetableApplicationTests in it.</p>
+<p>In the same folder, we can create a new class TimetableControllerTest to test our rest controller</p>
+<div style='background:#FFFFFF; font-family: Courier New, Courier; font-size: 10pt; COLOR: #000000; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px;'><strong><font color='#7f0055'>package</font></strong>&nbsp;timetable;
+<br/>
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.hamcrest.Matchers.hasSize;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.hamcrest.Matchers.is;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+<br/>
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;java.io.IOException;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;java.nio.charset.Charset;
+<br/>
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.junit.Before;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.junit.Test;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.junit.runner.RunWith;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.springframework.beans.factory.annotation.Autowired;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.springframework.boot.test.SpringApplicationConfiguration;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.springframework.http.MediaType;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.springframework.test.context.web.WebAppConfiguration;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.springframework.test.web.servlet.MockMvc;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.springframework.test.web.servlet.MvcResult;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;org.springframework.web.context.WebApplicationContext;
+<br/>
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;timetable.model.Event;
+<br/>
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;com.fasterxml.jackson.annotation.JsonInclude;
+<br/><strong><font color='#7f0055'>import</font></strong>&nbsp;com.fasterxml.jackson.databind.ObjectMapper;
+<br/>
+<br/>
+<br/><font color='#646464'>@RunWith</font>(SpringJUnit4ClassRunner.<strong><font color='#7f0055'>class</font></strong>)
+<br/><font color='#646464'>@SpringApplicationConfiguration</font>(classes&nbsp;=&nbsp;TimetableApplication.<strong><font color='#7f0055'>class</font></strong>)
+<br/><font color='#646464'>@WebAppConfiguration</font>
+<br/><strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>class</font></strong>&nbsp;TimetableControllerTest&nbsp;{
+<br/>
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>private</font></strong>&nbsp;MediaType&nbsp;contentType&nbsp;=&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;MediaType(MediaType.APPLICATION_JSON.getType(),
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MediaType.APPLICATION_JSON.getSubtype(),
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Charset.forName(<font color='#2a00ff'>"utf8"</font>));
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>private</font></strong>&nbsp;MockMvc&nbsp;mockMvc;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@Autowired</font>
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>private</font></strong>&nbsp;WebApplicationContext&nbsp;webApplicationContext;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@Before</font>&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>void</font></strong>&nbsp;setup()&nbsp;<strong><font color='#7f0055'>throws</font></strong>&nbsp;Exception&nbsp;{
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>this</font></strong>.mockMvc&nbsp;=&nbsp;webAppContextSetup(webApplicationContext).build();
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;}
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@Test</font>
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>void</font></strong>&nbsp;testEventNotFound()&nbsp;<strong><font color='#7f0055'>throws</font></strong>&nbsp;Exception&nbsp;{
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mockMvc.perform(get(<font color='#2a00ff'>"/timetable/event/5"</font>))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isNotFound());
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;}
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@Test</font>
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>void</font></strong>&nbsp;readSingleEvent()&nbsp;<strong><font color='#7f0055'>throws</font></strong>&nbsp;Exception&nbsp;{
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mockMvc.perform(get(<font color='#2a00ff'>"/timetable/event/1"</font>))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isOk())
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(content().contentType(contentType))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.id"</font>,&nbsp;is(1)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.title"</font>,&nbsp;is(<font color='#2a00ff'>"Yoga"</font>)));
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;}
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@Test</font>
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>void</font></strong>&nbsp;readEvents()&nbsp;<strong><font color='#7f0055'>throws</font></strong>&nbsp;Exception&nbsp;{
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mockMvc.perform(get(<font color='#2a00ff'>"/timetable"</font>))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isOk())
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(content().contentType(contentType))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$"</font>,&nbsp;hasSize(2)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$[0].id"</font>,&nbsp;is(1)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$[0].title"</font>,&nbsp;is(<font color='#2a00ff'>"Yoga"</font>)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$[1].id"</font>,&nbsp;is(2)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$[1].title"</font>,&nbsp;is(<font color='#2a00ff'>"Boxercise"</font>)));
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;}
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@Test</font>
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>void</font></strong>&nbsp;createEvent()&nbsp;<strong><font color='#7f0055'>throws</font></strong>&nbsp;Exception&nbsp;{
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;eventJson&nbsp;=&nbsp;json(&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;Event(
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4L,&nbsp;<font color='#2a00ff'>"lane&nbsp;swimming"</font>));
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MvcResult&nbsp;result&nbsp;=&nbsp;<strong><font color='#7f0055'>this</font></strong>.mockMvc.perform(post(<font color='#2a00ff'>"/timetable/event"</font>)
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.contentType(contentType)
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.content(eventJson))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isCreated())
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(content().contentType(contentType))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.id"</font>,&nbsp;is(4)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.title"</font>,&nbsp;is(<font color='#2a00ff'>"lane&nbsp;swimming"</font>)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andReturn();
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;createdPath&nbsp;=&nbsp;result.getResponse().getHeader(<font color='#2a00ff'>"Location"</font>);
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>this</font></strong>.mockMvc.perform(get(createdPath))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isOk())
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.id"</font>,&nbsp;is(4)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.title"</font>,&nbsp;is(<font color='#2a00ff'>"lane&nbsp;swimming"</font>)));
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;}
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#646464'>@Test</font>
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>public</font></strong>&nbsp;<strong><font color='#7f0055'>void</font></strong>&nbsp;testDeleteEvent()&nbsp;<strong><font color='#7f0055'>throws</font></strong>&nbsp;Exception&nbsp;{
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;eventJson&nbsp;=&nbsp;json(&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;Event(
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5L,&nbsp;<font color='#2a00ff'>"Pilates"</font>));
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MvcResult&nbsp;result&nbsp;=&nbsp;<strong><font color='#7f0055'>this</font></strong>.mockMvc.perform(post(<font color='#2a00ff'>"/timetable/event"</font>)
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.contentType(contentType)
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.content(eventJson))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isCreated())
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(content().contentType(contentType))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.id"</font>,&nbsp;is(5)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.title"</font>,&nbsp;is(<font color='#2a00ff'>"Pilates"</font>)))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andReturn();
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;createdLocation&nbsp;=&nbsp;result.getResponse().getHeader(<font color='#2a00ff'>"Location"</font>);
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>this</font></strong>.mockMvc.perform(get(createdLocation))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isOk())
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(jsonPath(<font color='#2a00ff'>"$.title"</font>,&nbsp;is(<font color='#2a00ff'>"Pilates"</font>)));
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>this</font></strong>.mockMvc.perform(delete(createdLocation))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isOk());
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>this</font></strong>.mockMvc.perform(get(createdLocation))
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isNotFound());
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;}
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>protected</font></strong>&nbsp;String&nbsp;json(Object&nbsp;o)&nbsp;<strong><font color='#7f0055'>throws</font></strong>&nbsp;IOException&nbsp;{
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ObjectMapper&nbsp;mapper&nbsp;=&nbsp;<strong><font color='#7f0055'>new</font></strong>&nbsp;ObjectMapper();
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><font color='#7f0055'>return</font></strong>&nbsp;mapper.writeValueAsString(o);
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;}
+<br/>
+<br/>}
+<br/>
+<br/><div style='text-align:right;BORDER-TOP: #ccc 1px dashed'><a href="http://www.togotutor.com/code-to-html/java-to-html.php" target="_blank">Code Formatted by ToGoTutor</a></div></div>
 <h2>Resources</h2>
 
