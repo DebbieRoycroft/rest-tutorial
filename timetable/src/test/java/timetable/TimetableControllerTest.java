@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.WebApplicationContext;
 
 import timetable.model.Event;
+import timetable.model.EventRepository;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,10 +46,13 @@ public class TimetableControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 	
+	@Autowired
+	private EventRepository eventRepo;
+	
 	@Before 
 	public void setup() throws Exception {
 		this.mockMvc = webAppContextSetup(webApplicationContext).build();
-		
+		this.eventRepo.deleteAllInBatch();
 	}
 	
 	@Test
@@ -59,54 +63,54 @@ public class TimetableControllerTest {
 	
 	@Test
 	public void readSingleEvent() throws Exception {
-		mockMvc.perform(get("/timetable/event/1"))
+		Event evt = this.eventRepo.save(new Event("Yoga"));
+		mockMvc.perform(get("/timetable/event/" + evt.getId()))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(contentType))
-				.andExpect(jsonPath("$.id", is(1)))
+				.andExpect(jsonPath("$.id", is(evt.getId().intValue())))
 				.andExpect(jsonPath("$.title", is("Yoga")));
 	}
 	
 	@Test
 	public void readEvents() throws Exception {
+		Event evt1 = this.eventRepo.save(new Event("Yoga"));
+		Event evt2 = this.eventRepo.save(new Event("Boxercise"));
 		mockMvc.perform(get("/timetable"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(contentType))
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$[0].id", is(1)))
+				.andExpect(jsonPath("$[0].id", is(evt1.getId().intValue())))
 				.andExpect(jsonPath("$[0].title", is("Yoga")))
-				.andExpect(jsonPath("$[1].id", is(2)))
+				.andExpect(jsonPath("$[1].id", is(evt2.getId().intValue())))
 				.andExpect(jsonPath("$[1].title", is("Boxercise")));
 	}
 	
 	@Test
 	public void createEvent() throws Exception {
 		String eventJson = json( new Event(
-				4L, "lane swimming"));
+				"lane swimming"));
 		MvcResult result = this.mockMvc.perform(post("/timetable/event")
 				.contentType(contentType)
 				.content(eventJson))
 				.andExpect(status().isCreated())
 				.andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$.id", is(4)))
                 .andExpect(jsonPath("$.title", is("lane swimming")))
                 .andReturn();
 		String createdPath = result.getResponse().getHeader("Location");
 		this.mockMvc.perform(get(createdPath))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.id", is(4)))
 			.andExpect(jsonPath("$.title", is("lane swimming")));
 	}
 	
 	@Test
 	public void testDeleteEvent() throws Exception {
 		String eventJson = json( new Event(
-				5L, "Pilates"));
+				"Pilates"));
 		MvcResult result = this.mockMvc.perform(post("/timetable/event")
 				.contentType(contentType)
 				.content(eventJson))
 				.andExpect(status().isCreated())
 				.andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$.id", is(5)))
                 .andExpect(jsonPath("$.title", is("Pilates")))
                 .andReturn();
 		String createdLocation = result.getResponse().getHeader("Location");
