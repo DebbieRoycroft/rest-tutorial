@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
+import java.time.Month;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +65,9 @@ public class TimetableControllerTest {
 	
 	@Test
 	public void readSingleEvent() throws Exception {
-		Event evt = this.eventRepo.save(new Event("Yoga"));
+		Event evt = this.eventRepo.save(new Event("Yoga",
+				LocalDateTime.of(2015, Month.APRIL, 23, 19, 00),
+				LocalDateTime.of(2015, Month.APRIL, 23, 20, 00)));
 		mockMvc.perform(get("/timetable/event/" + evt.getId()))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(contentType))
@@ -73,8 +77,13 @@ public class TimetableControllerTest {
 	
 	@Test
 	public void readEvents() throws Exception {
-		Event evt1 = this.eventRepo.save(new Event("Yoga"));
-		Event evt2 = this.eventRepo.save(new Event("Boxercise"));
+		Event evt1 = this.eventRepo.save( new Event("Yoga", 
+				LocalDateTime.of(2015, Month.APRIL, 23, 19, 00),
+				LocalDateTime.of(2015, Month.APRIL, 23, 20, 00)));
+		Event evt2 = this.eventRepo.save(new Event("Boxercise", 
+				LocalDateTime.of(2015, Month.APRIL, 23, 20, 00),
+				LocalDateTime.of(2015, Month.APRIL, 23, 21, 00)));
+		
 		mockMvc.perform(get("/timetable"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(contentType))
@@ -88,7 +97,10 @@ public class TimetableControllerTest {
 	@Test
 	public void createEvent() throws Exception {
 		String eventJson = json( new Event(
-				"lane swimming"));
+				"lane swimming", 
+				LocalDateTime.of(2015, Month.APRIL, 23, 16, 00),
+				LocalDateTime.of(2015, Month.APRIL, 23, 21, 00)));
+		
 		MvcResult result = this.mockMvc.perform(post("/timetable/event")
 				.contentType(contentType)
 				.content(eventJson))
@@ -105,7 +117,9 @@ public class TimetableControllerTest {
 	@Test
 	public void testDeleteEvent() throws Exception {
 		String eventJson = json( new Event(
-				"Pilates"));
+				"Pilates", 
+				LocalDateTime.of(2015, Month.APRIL, 23, 18, 00),
+				LocalDateTime.of(2015, Month.APRIL, 23, 19, 00)));
 		MvcResult result = this.mockMvc.perform(post("/timetable/event")
 				.contentType(contentType)
 				.content(eventJson))
