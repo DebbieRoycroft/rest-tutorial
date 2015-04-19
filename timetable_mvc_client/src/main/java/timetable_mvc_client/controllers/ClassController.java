@@ -1,5 +1,7 @@
 package timetable_mvc_client.controllers;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,8 +20,10 @@ public class ClassController {
 	
 	@RequestMapping(value="/class", method=RequestMethod.POST)
 	public String createNewClass(TimetableClass newClass){
+		HttpEntity<TimetableClass> httpEntity = new HttpEntity<TimetableClass>( newClass, ClientCredentials.getRequestHeaderWithAuthorization());
 		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<TimetableClass> response = restTemplate.postForEntity("http://localhost:8080/timetable/event", newClass, TimetableClass.class);
+		ResponseEntity<TimetableClass> response = restTemplate.postForEntity("http://localhost:8080/timetable/event", 
+				httpEntity, TimetableClass.class);
 		return "redirect:timetable";
 	}
 }
