@@ -14,7 +14,7 @@ public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
     @Override
     public LocalDateTime deserialize(JsonParser arg0, 
     		DeserializationContext arg1) throws IOException, JsonProcessingException {
-        Instant dateTime = Instant.ofEpochSecond(arg0.getLongValue());
+        Instant dateTime = Instant.ofEpochMilli(arg0.getLongValue());
     	return LocalDateTime.ofInstant(dateTime, ZoneId.of("UTC"));
     }
 }
