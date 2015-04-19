@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+  <head>
+    <title>New Class</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" media="all" 
+          href="../../css/gtvg.css" th:href="@{/css/gtvg.css}" />
+  </head>
+	<body>
+	<h1 th:text="#{title.createNewClass}">New Class</h1>
+    <form id="new-class-form" role="form" th:action="@{/class}" method="post" th:object="${TimetableClass}">
+    	<label for="title" th:text="#{newclass.title}">title</label>
+    	<input type="text" id="title" name="title" value=""/>
+    	<div>
+        	<button type="submit">Save</button>
+    	</div>
+    </form> 
+    <a href="/timetable" th:href="@{/timetable}" th:text="#{link.fullTimetable}">back</a>
+	</body>
+</html>
