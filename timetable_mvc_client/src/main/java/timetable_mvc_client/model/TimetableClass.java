@@ -2,6 +2,9 @@ package timetable_mvc_client.model;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TimetableClass {
 	private String title;
 	private Date startTime;
