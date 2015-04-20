@@ -1,9 +1,5 @@
 package timetable;
 
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.Arrays;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,11 +15,11 @@ public class TimetableApplication {
 	CommandLineRunner init(EventRepository eventRepository) {
 		return (evt)-> { 
 			eventRepository.save( new Event("Yoga", 
-				LocalDateTime.of(2015, Month.APRIL, 23, 19, 00),
-				LocalDateTime.of(2015, Month.APRIL, 23, 20, 00)));
+				4,
+				"8pm", "9pm"));
 			eventRepository.save(new Event("Boxercise", 
-				LocalDateTime.of(2015, Month.APRIL, 23, 20, 00),
-				LocalDateTime.of(2015, Month.APRIL, 23, 21, 00)));
+				5,
+				"7pm", "8pm"));
 		};		
 	}
 	

@@ -1,13 +1,14 @@
 package timetable_mvc_client.model;
 
-import java.util.Date;
-
+import java.time.DayOfWeek;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TimetableClass {
 	private String title;
-	private Date startTime;
+	private Integer day;
+	private String startTime;
+	private String endTime;
 	
 	public String getTitle() {
 		return title;
@@ -15,10 +16,22 @@ public class TimetableClass {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public Date getStartTime() {
+	public Integer getDay() {
+		return day;
+	}
+	public void setDay(Integer day) {
+		this.day = day;
+	}
+	public String getStartTime() {
 		return startTime;
 	}
-	public void setStartTime(Date startTime) {
+	public void setStartTime(String startTime) {
 		this.startTime = startTime;
+	}
+	public String getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
 	}
 }

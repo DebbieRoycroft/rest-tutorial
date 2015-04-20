@@ -1,11 +1,8 @@
 package timetable.model;
 
-import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Entity
 public class Event {
@@ -13,17 +10,15 @@ public class Event {
 	@GeneratedValue
 	private Long id;
 	private String title;
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	private LocalDateTime startTime;
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	private LocalDateTime endTime;
+	private Integer day;
+	private String startTime;
+	private String endTime;
 
 	public Event() {}
 	
-	public Event(String title, LocalDateTime startTime, LocalDateTime endTime) {
+	public Event(String title, Integer day, String startTime, String endTime) {
 		this.title = title;
+		this.day = day;
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
@@ -36,11 +31,15 @@ public class Event {
 		return title;
 	}
 
-	public LocalDateTime getStartTime() {
+	public Integer getDay() {
+		return day;
+	}
+	
+	public String getStartTime() {
 		return startTime;
 	}
 
-	public LocalDateTime getEndTime() {
+	public String getEndTime() {
 		return endTime;
 	}
 

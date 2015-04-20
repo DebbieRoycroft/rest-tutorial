@@ -14,11 +14,15 @@
     <table>
       <tr>
         <th th:text="#{timetable.header.class}">CLASS</th>
+        <th th:text="#{timetable.header.day}">DAY</th>
         <th th:text="#{timetable.header.startTime}">START TIME</th>
+        <th th:text="#{timetable.header.endTime}">END TIME</th>
       </tr>
       <tr th:each="gymClass : ${timetable.classes}">
         <td th:text="${gymClass.title}">A class</td>
-        <td th:text="*{gymClass.startTime != null}? ${#calendars.format(gymClass.startTime,'dd MMMM yyyy HH:mm')} : '(no time specified)'">now</td>
+        <td th:text="${gymClass.day} != null ? #{day__${gymClass.day}__} : ''">day</td>
+        <td th:text="${gymClass.startTime}">start</td>
+        <td th:text="${gymClass.endTime}">end</td>
       </tr>
     </table>
     <a href="/createClass" th:href="@{/class}" th:text="#{link.createNewClass}">create</a>
