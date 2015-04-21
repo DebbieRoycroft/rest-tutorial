@@ -303,7 +303,15 @@ We're just going to select actuator and web for now, we can add more capabilitie
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.andExpect(status().isNotFound());
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;}
 <br/>}<div style='text-align:right;BORDER-TOP: #ccc 1px dashed'><a href="http://www.togotutor.com/code-to-html/java-to-html.php" target="_blank">Code Formatted by ToGoTutor</a></div></div>
-
+<p>We also need an additional dependency in the maven pom.xml. Spring included spring-boot-starter-test automatically, but the jsonPath matcher requires an extra artifact:</p>
+<code>
+&nbsp;&nbsp;&lt;dependency&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jayway.jsonpath&lt;/groupId&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;json-path-assert&lt;/artifactId&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;0.8.1&lt;/version&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;test&lt;/scope&gt;
+<br/>&nbsp;&nbsp;&lt;/dependency&gt;
+</code>
 <p>Includes for TimetableControllerTest</p>
 <br/>
 <br/><strong><font color='#7f0055'>import</font></strong>&nbsp;<strong><font color='#7f0055'>static</font></strong>&nbsp;org.hamcrest.Matchers.hasSize;
@@ -337,5 +345,287 @@ We're just going to select actuator and web for now, we can add more capabilitie
 <br/><strong><font color='#7f0055'>import</font></strong>&nbsp;com.fasterxml.jackson.annotation.JsonInclude;
 <br/><strong><font color='#7f0055'>import</font></strong>&nbsp;com.fasterxml.jackson.databind.ObjectMapper;
 <br/>
+<p>Next we'll add a client for this API.</p>
+<p>Create a new project for this, again using Spring Boot.  This time we'll use the web and thymeleaf options only.</p>
+<p>The project is timetable_mvc_client and its pom.xml looks like this:</p>
+<code>
+<br/>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<br/>&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<br/>&nbsp;&nbspxsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+<br/>&nbsp;&nbsp&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+<br/>
+<br/>&nbsp;&nbsp&lt;groupId&gt;org.me&lt;/groupId&gt;
+<br/>&nbsp;&nbsp&lt;artifactId&gt;timetable_mvc_client&lt;/artifactId&gt;
+<br/>&nbsp;&nbsp&lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+<br/>&nbsp;&nbsp&lt;packaging&gt;jar&lt;/packaging&gt;
+<br/>
+<br/>&nbsp;&nbsp&lt;name&gt;timetable_mvc_client&lt;/name&gt;
+<br/>&nbsp;&nbsp&lt;description&gt;Spring boot mvc client for timetable rest service&lt;/description&gt;
+<br/>
+<br/>&nbsp;&nbsp&lt;parent&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;version&gt;1.2.3.RELEASE&lt;/version&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;
+<br/>&nbsp;&nbsp&lt;/parent&gt;
+<br/>
+<br/>&nbsp;&nbsp&lt;properties&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;start-class&gt;timetable_mvc_client.TimetableMvcClientApplication&lt;/start-class&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;java.version&gt;1.8&lt;/java.version&gt;
+<br/>&nbsp;&nbsp&lt;/properties&gt;
+<br/>
+<br/>&nbsp;&nbsp&lt;dependencies&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;dependency&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;/dependency&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;dependency&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;/dependency&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;dependency&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;scope&gt;test&lt;/scope&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;/dependency&gt;
+<br/>&nbsp;&nbsp&lt;/dependencies&gt;
+<br/>&nbsp;&nbsp
+<br/>&nbsp;&nbsp&lt;build&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;plugins&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;plugin&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&lt;/plugin&gt;
+<br/>&nbsp;&nbsp&nbsp;&nbsp&lt;/plugins&gt;
+<br/>&nbsp;&nbsp&lt;/build&gt;
+<br/>
+<br/>&lt;/project&gt;
+</code>
+<p>Spring Boot should have generated us a class with a main method as a starter:</p>
+<code>
+package timetable_mvc_client;
+<br/>
+<br/>import org.springframework.boot.SpringApplication;
+<br/>import org.springframework.boot.autoconfigure.SpringBootApplication;
+<br/>
+<br/>@SpringBootApplication
+<br/>public class TimetableMvcClientApplication {
+<br/>
+<br/>&nbsp;&nbsp;public static void main(String[] args) {
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;SpringApplication.run(TimetableMvcClientApplication.class, args);
+<br/>&nbsp;&nbsp;}
+<br/>}
+<br/>
+</code>
+<p>We need a controller.  I've added a new package timetable_mvc_client.controllers to hold this</p>
+<code>
+package timetable_mvc_client.controllers;
+<br/>
+<br/>import java.util.Arrays;
+<br/>import org.springframework.stereotype.Controller;
+<br/>import org.springframework.ui.Model;
+<br/>import org.springframework.web.bind.annotation.RequestMapping;
+<br/>import org.springframework.web.client.RestTemplate;
+<br/>
+<br/>import timetable_mvc_client.model.Timetable;
+<br/>import timetable_mvc_client.model.TimetableClass;
+<br/>
+<br/>@Controller
+<br/>public class TimetableController {
+<br/>
+<br/>&nbsp;@RequestMapping("/timetable")
+<br/>&nbsp;public String showFullTimetable(Model model){
+<br/>&nbsp;&nbsp;model.addAttribute("timetable", this.getFullTimetable());
+<br/>&nbsp;&nbsp;return "full_timetable";
+<br/>&nbsp;}
+<br/>
+<br/>&nbsp;private Timetable getFullTimetable() {
+<br/>&nbsp;&nbsp;RestTemplate restTemplate = new RestTemplate();
+<br/>&nbsp;&nbsp;TimetableClass[] classes = restTemplate.getForObject( "http://localhost:8080/timetable", TimetableClass[].class);
+<br/>&nbsp;&nbsp;Timetable fullTimetable = new Timetable();
+<br/>&nbsp;&nbsp;fullTimetable.setClasses(Arrays.asList(classes));
+<br/>&nbsp;&nbsp;return fullTimetable;
+<br/>&nbsp;}
+<br/>}
+</code>
+<code>
+package timetable_mvc_client.controllers;
+<br/>
+<br/>import org.springframework.http.ResponseEntity;
+<br/>import org.springframework.stereotype.Controller;
+<br/>import org.springframework.ui.Model;
+<br/>import org.springframework.web.bind.annotation.RequestMapping;
+<br/>import org.springframework.web.bind.annotation.RequestMethod;
+<br/>import org.springframework.web.client.RestTemplate;
+<br/>
+<br/>import timetable_mvc_client.model.TimetableClass;
+<br/>
+<br/>@Controller
+<br/>public class ClassController {
+<br/>&nbsp;@RequestMapping("/class")
+<br/>&nbsp;public String showCreateClassForm(Model model){
+<br/>&nbsp;&nbsp;return "new_class";
+<br/>&nbsp;}
+<br/>&nbsp;
+<br/>&nbsp;@RequestMapping(value="/class", method=RequestMethod.POST)
+<br/>&nbsp;public String createNewClass(TimetableClass newClass){
+<br/>&nbsp;&nbsp;RestTemplate restTemplate = new RestTemplate();
+<br/>&nbsp;&nbsp;ResponseEntity&lt;TimetableClass&gt; response = restTemplate.postForEntity("http://localhost:8080/timetable/event", newClass, TimetableClass.class);
+<br/>&nbsp;&nbsp;return "redirect:timetable";
+<br/>&nbsp;}
+<br/>}
+</code>
+<p>A couple of classes for the model (data)</p>
+<code>
+package timetable_mvc_client.model;
+<br/>
+<br/>import java.util.List;
+<br/>
+<br/>public class Timetable {
+<br/>&nbsp;private List&lt;TimetableClass&gt; classes;
+<br/>
+<br/>&nbsp;public List&lt;TimetableClass&gt; getClasses() {
+<br/>&nbsp;&nbsp;return classes;
+<br/>&nbsp;}
+<br/>
+<br/>&nbsp;public void setClasses(List&lt;TimetableClass&gt; classes) {
+<br/>&nbsp;&nbsp;this.classes = classes;
+<br/>&nbsp;}
+<br/>}
+</code>
+<code>
+<br/>package timetable_mvc_client.model;
+<br/>
+<br/>import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+<br/>
+<br/>@JsonIgnoreProperties(ignoreUnknown = true)
+<br/>public class TimetableClass {
+<br/>&nbsp;private String title;
+<br/>&nbsp;private Integer day;
+<br/>&nbsp;private String startTime;
+<br/>&nbsp;private String endTime;
+<br/>&nbsp;
+<br/>&nbsp;public String getTitle() {
+<br/>&nbsp;&nbsp;return title;
+<br/>&nbsp;}
+<br/>&nbsp;public void setTitle(String title) {
+<br/>&nbsp;&nbsp;this.title = title;
+<br/>&nbsp;}
+<br/>&nbsp;public Integer getDay() {
+<br/>&nbsp;&nbsp;return day;
+<br/>&nbsp;}
+<br/>&nbsp;public void setDay(Integer day) {
+<br/>&nbsp;&nbsp;this.day = day;
+<br/>&nbsp;}
+<br/>&nbsp;public String getStartTime() {
+<br/>&nbsp;&nbsp;return startTime;
+<br/>&nbsp;}
+<br/>&nbsp;public void setStartTime(String startTime) {
+<br/>&nbsp;&nbsp;this.startTime = startTime;
+<br/>&nbsp;}
+<br/>&nbsp;public String getEndTime() {
+<br/>&nbsp;&nbsp;return endTime;
+<br/>&nbsp;}
+<br/>&nbsp;public void setEndTime(String endTime) {
+<br/>&nbsp;&nbsp;this.endTime = endTime;
+<br/>&nbsp;}
+<br/>}
+<br/>
+</code>
+<p>And a view...in the src/main/resources/templates folder create full_timetable.html</p>
+<code>
+&lt;!DOCTYPE html&gt;
+<br/>
+<br/>&lt;html xmlns="http://www.w3.org/1999/xhtml"
+<br/>&nbsp;&nbsp;&nbsp;xmlns:th="http://www.thymeleaf.org"&gt;
+<br/>
+<br/>&nbsp;&lt;head&gt;
+<br/>&nbsp;&nbsp;&lt;title&gt;Gym Timetable&lt;/title&gt;
+<br/>&nbsp;&nbsp;&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+<br/>&nbsp;&lt;/head&gt;
+<br/>&nbsp;&lt;body&gt;
+<br/>&nbsp;&lt;h1 th:text="#{title.timetableevents}"&gt;Timetable of Events&lt;/h1&gt;
+<br/>&nbsp;&nbsp;&lt;table&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;tr&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;th th:text="#{timetable.header.class}"&gt;CLASS&lt;/th&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;th th:text="#{timetable.header.day}"&gt;DAY&lt;/th&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;th th:text="#{timetable.header.startTime}"&gt;START TIME&lt;/th&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;th th:text="#{timetable.header.endTime}"&gt;END TIME&lt;/th&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;/tr&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;tr th:each="gymClass : ${timetable.classes}"&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;td th:text="${gymClass.title}"&gt;A class&lt;/td&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;td th:text="${gymClass.day} != null ? #{day__${gymClass.day}__} : ''"&gt;day&lt;/td&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;td th:text="${gymClass.startTime}"&gt;start&lt;/td&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;td th:text="${gymClass.endTime}"&gt;end&lt;/td&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;/tr&gt;
+<br/>&nbsp;&nbsp;&lt;/table&gt;
+<br/>&nbsp;&nbsp;&lt;a href="/createClass" th:href="@{/class}" th:text="#{link.createNewClass}"&gt;create&lt;/a&gt;
+<br/>&nbsp;&lt;/body&gt;
+<br/>&lt;/html&gt;
+</code>
+<code>
+&lt;!DOCTYPE html&gt;
+<br/>
+<br/>&lt;html xmlns="http://www.w3.org/1999/xhtml"
+<br/>&nbsp;&nbsp;&nbsp;xmlns:th="http://www.thymeleaf.org"&gt;
+<br/>
+<br/>&nbsp;&lt;head&gt;
+<br/>&nbsp;&nbsp;&lt;title&gt;New Class&lt;/title&gt;
+<br/>&nbsp;&nbsp;&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+<br/>&nbsp;&lt;/head&gt;
+<br/>&nbsp;&lt;body&gt;
+<br/>&nbsp;&lt;h1 th:text="#{title.createNewClass}"&gt;New Class&lt;/h1&gt;
+<br/>&nbsp;&nbsp;&lt;form id="new-class-form" role="form" th:action="@{/class}" method="post" th:object="${TimetableClass}"&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;label for="title" th:text="#{newclass.title}"&gt;title&lt;/label&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;input type="text" id="title" name="title" value=""/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;label for="day" th:text="#{newclass.day}"&gt;day&lt;/label&gt; 
+<br/>&nbsp;&nbsp;&nbsp;&lt;select name="day"&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;option value="1" th:text="#{day1}"&gt;Mon&lt;/option&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;option value="2" th:text="#{day2}"&gt;Tue&lt;/option&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;option value="3" th:text="#{day3}"&gt;Wed&lt;/option&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;option value="4" th:text="#{day4}"&gt;Thu&lt;/option&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;option value="5" th:text="#{day5}"&gt;Fri&lt;/option&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;option value="6" th:text="#{day6}"&gt;Sat&lt;/option&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;option value="7" th:text="#{day7}"&gt;Sun&lt;/option&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;/select&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;label for="startTime" th:text="#{newclass.startTime}"&gt;startTime&lt;/label&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;input type="text" id="startTime" name="startTime" value=""/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;label for="endTime" th:text="#{newclass.endTime}"&gt;startTime&lt;/label&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;input type="text" id="endTime" name="endTime" value=""/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;div&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button type="submit"&gt;Save&lt;/button&gt;
+<br/>&nbsp;&nbsp;&nbsp;&lt;/div&gt;
+<br/>&nbsp;&nbsp;&lt;/form&gt; 
+<br/>&nbsp;&nbsp;&lt;a href="/timetable" th:href="@{/timetable}" th:text="#{link.fullTimetable}"&gt;back&lt;/a&gt;
+<br/>&nbsp;&lt;/body&gt;
+<br/>&lt;/html&gt;
+</code>
+<p>The labels and static text come from messages.properties in src/main/resources</p>
+<code>
+<br/>title.timetableevents=What's on
+<br/>timetable.header.class=Class
+<br/>timetable.header.day=Day
+<br/>timetable.header.startTime=Start Time
+<br/>timetable.header.endTime=End Time
+<br/>link.createNewClass=Create New Class
+<br/>title.createNewClass=New Class
+<br/>link.fullTimetable=Show Full Timetable
+<br/>newclass.title=Class title:
+<br/>newclass.day=Day:
+<br/>newclass.startTime=Start:
+<br/>newclass.endTime=End:
+<br/>day1=Monday
+<br/>day2=Tuesday
+<br/>day3=Wednesday
+<br/>day4=Thursday
+<br/>day5=Friday
+<br/>day6=Saturday
+<br/>day7=Sunday
+</code>
+<p>Finally, before running up the application, if it's going to run on the same host machine as the timetable rest server, we'll need to make sure that the tomcat server inside the mvc client starts on a different port.  This can be set as an argument at runtime, or we can set it up in application.properties (also in src/main/resources)</p>
+<code>
+server.port = 9080
+</code>
 <h2>Resources</h2>
 
