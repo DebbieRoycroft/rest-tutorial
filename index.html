@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>rest-tutorial by DebbieRoycroft</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">rest-tutorial</h1>
+      <h2 class="project-tagline">Instructions for REST with Spring Boot session - Manchester Java Community April 2015</h2>
+      <a href="https://github.com/DebbieRoycroft/rest-tutorial" class="btn">View on GitHub</a>
+      <a href="https://github.com/DebbieRoycroft/rest-tutorial/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/DebbieRoycroft/rest-tutorial/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p>This tutorial introduces Spring Boot to build a rest server and a client for that interface.</p>
+
+<p>We're going to build a small sample application using Spring Boot. The application is for a leisure centre that wants to be able to show everyone the classes it offers and let its staff edit those classes</p>
+
+<p>In Eclipse, start a new spring starter project:
+<img src="https://github.com/DebbieRoycroft/rest-tutorial/blob/dev/instructions/screenshots/newproject.png" alt=""></p>
+
+<p>Set up details of the project like this - we're using Java 1.8, and Maven to build We're just going to select actuator and web for now, we can add more capabilities later on</p>
+
+<p>We can just click on 'Finish' now, and we will get a zip file downloaded with our new project in. It should look something like this:</p>
+
+<p>Believe it or not we can already run this up and it will do things...Launch it in Eclipse</p>
+
+<p>Now in a browser navigate to http://localhost:8080/health</p>
+
+<p>Hopefully you'll see something like this:</p>
+
+<p>Spring boot actuator has set up a number of URL endpoints automatically. 'health' is one of them. You can see the others when in the console within the IDE (I've shortened the output lines a bit!):</p>
+
+<pre><code>... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/beans],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/env/{name:.*}],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/env],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/health],methods=[],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/metrics/{name:.*}],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/metrics],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/configprops],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/dump],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/info],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/autoconfig],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/mappings],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/shutdown],methods=[POST],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/trace],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
+</code></pre>
+
+<p>Try out some of the others</p>
+
+<p>OK. So far so good, let's add some of our own code now.</p>
+
+<p>For the REST service, we need two classes, the controller class that tells Spring what function will handle which URL/method and a data model class.</p>
+
+<p>I'm going to put the data model classes into their own package just to help keep things tidy, so I added timetable.model. Within that package, I created a simple data model class <code>Event</code>:</p>
+
+<pre><code>package timetable.model; 
+
+public class Event { 
+    private Long id; 
+    private String title; 
+
+    public Event(Long id, String title) { 
+        this.id = id; 
+        this.title = title; 
+    } 
+
+    public Long getId() { 
+        return id; 
+    } 
+
+    public String getTitle() { 
+        return title; 
+    } 
+
+}
+</code></pre>
+
+<p>We don't need any annotations on this class, or anything else to tell Spring how to handle it</p>
+
+<p>Now we need a controller class</p>
+
+<p>First of all we'll just add an API to return all events, this will be a GET method call to /timetable and will return a list of Events</p>
+
+<p>Here's what it looks like (this is in the timetable package)</p>
+
+<pre><code>package timetable; 
+
+import java.util.ArrayList; 
+import java.util.List; 
+
+import org.springframework.stereotype.Controller; 
+import org.springframework.web.bind.annotation.RequestMapping; 
+import org.springframework.web.bind.annotation.RequestMethod; 
+import org.springframework.web.bind.annotation.ResponseBody; 
+
+import timetable.model.Event; 
+
+@Controller 
+@RequestMapping("/timetable") 
+public class TimetableController { 
+
+    @RequestMapping(method=RequestMethod.GET) 
+    public @ResponseBody List&lt;Event&gt; getEvents(){ 
+        List&lt;Event&gt; events = new ArrayList&lt;&gt;(); 
+        events.add(new Event(1L,"Yoga")); 
+        events.add(new Event(2L,"Boxercise")); 
+        return events;         
+    } 
+}
+</code></pre>
+
+<p>The <code>@Controller</code> annotation tells Spring this is a Controller- it's mapping some endpoints.</p>
+
+<p>The <code>@RequestMapping</code> above the class definition gives the root mapping- so all calls to (in our case) http://localhost:8080/timetable will look in here to be processed</p>
+
+<p>The <code>@RequestMapping</code> above the <code>getEvents()</code> method tells Spring this is the method to use for a GET call, and the <code>@ResponseBody</code> annotation before the return type is very important- this tells Spring we want it to send back the body data as it is, we don't have a view defined (the same <code>RequestMapping</code> annotations get used for Spring MVC where Spring would expect to find a view class mapped). Miss it off and you'll get an exception when you try to make your API request</p>
+
+<p>For now, the body of the method just creates a hard-wired List and returns it</p>
+
+<p>Save it all and run it back up (Eclipse should autobuild it for you on saving)</p>
+
+<p>In the console you should be able to see the new endpoint '/timetable' mapped:</p>
+
+<pre><code>Mapped "{[/timetable],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" onto public java.util.List timetable.TimetableController.getEvents()
+</code></pre>
+
+<p>Back in the browser http://localhost:8080/timetable should give you a string of JSON something like this:</p>
+
+<pre><code>[{"id":1,"title":"Yoga"},{"id":2,"title":"Boxercise"}]
+</code></pre>
+
+<p>Next we'll implement some methods for the Event resource, these will use the URL http://localhost:8080/timetable/event</p>
+
+<p>But before we do that, we will refactor the Event object slightly, so that we use JPA persistence</p>
+
+<p>We need to add some dependencies to the pom.xml file inside the <code>&lt;dependencies&gt;</code> tag:</p>
+
+<pre><code>  &lt;dependency&gt; 
+    &lt;groupId&gt;com.h2database&lt;/groupId&gt; 
+    &lt;artifactId&gt;h2&lt;/artifactId&gt; 
+  &lt;/dependency&gt; 
+  &lt;dependency&gt; 
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
+    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt; 
+  &lt;/dependency&gt;
+</code></pre>
+
+<p>This gives us the spring data JPA libraries and the h2 in memory database. You could use another database such as MongoDB, MySQL</p>
+
+<p>Now we'll change Event</p>
+
+<pre><code>@Entity 
+public class Event { 
+    @Id 
+    @GeneratedValue 
+    private Long id; 
+    private String title;
+</code></pre>
+
+<p>We will need to add a default constructor so that JPA can create the object, and we can remove <code>id</code> from the current constructor because the Id is now annotated as auto-generated (<code>@GeneratedValue</code>), so the constructors end up looking like this:</p>
+
+<pre><code>    public Event() {} 
+
+    public Event(String title) { 
+        this.title = title; 
+    } 
+</code></pre>
+
+<p>We also need to add a repository for our persisted Event, we can do this with minimal code just by adding a new interface in the <code>timetable.model</code> package:</p>
+
+<pre><code>package timetable.model; 
+
+import org.springframework.data.jpa.repository.JpaRepository; 
+
+public interface EventRepository extends JpaRepository&lt;Event, Long&gt; { 
+
+}
+</code></pre>
+
+<p>We will need to access the <code>EventRepository</code> from the <code>TimetableController</code>, so in that class we add a new member:</p>
+
+<pre><code>  @Autowired   EventRepository eventRepo;
+</code></pre>
+
+<p>We can initialise it with some default values in the <code>TimetableApplication</code> class with this method</p>
+
+<pre><code>    @Bean 
+    CommandLineRunner init(EventRepository eventRepository) { 
+        return (evt)-&gt; {  
+            eventRepository.save( new Event("Yoga")); 
+            eventRepository.save( new Event("Boxercise")); 
+        };         
+    }
+</code></pre>
+
+<p>Finally we can change the <code>TimetableController</code> <code>getEvents()</code> method to use the repository:</p>
+
+<pre><code>    @RequestMapping(method=RequestMethod.GET) 
+    public @ResponseBody Collection&lt;Event&gt; getEvents(){ 
+        return eventRepo.findAll(); 
+
+    }
+</code></pre>
+
+<p>On to adding the remainder of the API</p>
+
+<p>Now we can add a method to implement GET for an individual Event. The id of the event is used as part of the URL (this is the path variable).</p>
+
+<pre><code>    @RequestMapping(value="/event/{id}", method=RequestMethod.GET) 
+    public @ResponseBody Event getEventById(@PathVariable Long id){ 
+        Event result = eventRepo.findOne(id); 
+        if (result == null){ 
+            throw new EventNotFoundException(id); 
+        } 
+        return result; 
+    }
+</code></pre>
+
+<p>If it can't find the event in the URL, it will throw an exception, this is annotated with <code>HttpStatus.NOT_FOUND</code> (404), which Spring will return for us if this exception is thrown</p>
+
+<pre><code>@ResponseStatus(HttpStatus.NOT_FOUND) 
+class EventNotFoundException extends RuntimeException { 
+    private static final long serialVersionUID = -9174199038443186877L; 
+
+    public EventNotFoundException(Long eventId){ 
+        super("could not find event '" + eventId + "'."); 
+    } 
+}
+</code></pre>
+
+<p>http://localhost:8080/timetable/event/1 should give us back the yoga class, http://localhost:8080/timetable/event/2 the boxercise class</p>
+
+<p>Next, the POST method can add a new class to the repository. We generate the id automatically, and return the path to the generated event in the http header for the response. This path can be used as the URL for a subsequent request e.g. GET, DELETE</p>
+
+<p>I'm using POST rather than PUT to implement the create, because I don't know the full URL for the new object (because the id is auto-generated). If the client were generating the id, then the PUT method might be more appropriate to use here</p>
+
+<pre><code>    @RequestMapping(value="/event", method=RequestMethod.POST) 
+    public ResponseEntity&lt;?&gt; addEvent(@RequestBody Event evt){ 
+        Event result = eventRepo.save(evt); 
+        HttpHeaders httpHeaders = new HttpHeaders(); 
+        httpHeaders.setLocation(ServletUriComponentsBuilder 
+                .fromCurrentRequest().path("/{id}") 
+                .buildAndExpand(result.getId()).toUri()); 
+        return new ResponseEntity&lt;&gt;(result,httpHeaders, HttpStatus.CREATED); 
+    }
+</code></pre>
+
+<p>Finally, the DELETE method will remove an event</p>
+
+<pre><code>    @RequestMapping(value="/event/{id}", method=RequestMethod.DELETE) 
+    public void deleteEvent(@PathVariable Long id){ 
+        eventRepo.delete(id); 
+    }
+</code></pre>
+
+<p>Now we have all these interfaces implemented, we can test them manually, using Chrome REST Console, or cURL, but it would be good to get some automated tests.</p>
+
+<p>Spring Boot bundles some unit testing libraries automatically. When we created the project we automatically got a <code>src/test/java</code> folder, with a <code>TimetableApplicationTests</code> in it.</p>
+
+<p>In the same folder, we can create a new class <code>TimetableControllerTest</code> to test our rest controller</p>
+
+<pre><code>package timetable; 
+... 
+
+@RunWith(SpringJUnit4ClassRunner.class) 
+@SpringApplicationConfiguration(classes = TimetableApplication.class) 
+@WebAppConfiguration 
+public class TimetableControllerTest { 
+
+    private MockMvc mockMvc; 
+</code></pre>
+
+<p>We've told JUnit to user the SpringJUnit4ClassRunner to run the tests so it will be expecting to set up a Spring framework context</p>
+
+<p><code>@SpringApplicationConfiguration</code> tells the framework where to find its configuration</p>
+
+<p>The <code>@WebAppConfiguration</code> and <code>MockMvc</code> mean we won't be using the full tomcat server for these tests</p>
+
+<pre><code>    @Autowired 
+    private WebApplicationContext webApplicationContext; 
+
+    @Autowired 
+    private EventRepository eventRepo; 
+
+    @Before  
+    public void setup() throws Exception { 
+        this.mockMvc = webAppContextSetup(webApplicationContext).build(); 
+        this.eventRepo.deleteAllInBatch(); 
+    } 
+</code></pre>
+
+<p>Before each test we make sure we have a clean set up with our <code>mockMvc</code> and also ensure that the in memory database is cleared down so it won't matter what order the tests are run in</p>
+
+<p>The simplest thing to test is to check for the 404 not found response for an unknown event:</p>
+
+<pre><code>    @Test 
+    public void testEventNotFound() throws Exception { 
+        mockMvc.perform(get("/timetable/event/5")) 
+                .andExpect(status().isNotFound()); 
+    } 
+</code></pre>
+
+<p>This test checks for the GET on timetable/event/1 - making sure that we have an object in the database to be at that URL.</p>
+
+<p>The expectations from the <code>mockMvc</code> show we're expecting to get back JSON from the API, test the status from the header, and test the body of the response with the <code>jsonPath</code> matcher.</p>
+
+<pre><code>   private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(), 
+            MediaType.APPLICATION_JSON.getSubtype(), 
+            Charset.forName("utf8")); 
+
+    @Test 
+    public void readSingleEvent() throws Exception { 
+        Event evt = this.eventRepo.save(new Event("Yoga")); 
+        mockMvc.perform(get("/timetable/event/" + evt.getId())) 
+                .andExpect(status().isOk()) 
+                .andExpect(content().contentType(contentType)) 
+                .andExpect(jsonPath("$.id", is(evt.getId().intValue()))) 
+                .andExpect(jsonPath("$.title", is("Yoga"))); 
+    } 
+</code></pre>
+
+<p>The test for GET /timetable/ is very similar, but it's expecting a collection back in the body- we can use matchers to test that too</p>
+
+<pre><code>    @Test 
+    public void readEvents() throws Exception { 
+        Event evt1 = this.eventRepo.save(new Event("Yoga")); 
+        Event evt2 = this.eventRepo.save(new Event("Boxercise")); 
+        mockMvc.perform(get("/timetable")) 
+                .andExpect(status().isOk()) 
+                .andExpect(content().contentType(contentType)) 
+                .andExpect(jsonPath("$", hasSize(2))) 
+                .andExpect(jsonPath("$[0].id", is(evt1.getId().intValue()))) 
+                .andExpect(jsonPath("$[0].title", is("Yoga"))) 
+                .andExpect(jsonPath("$[1].id", is(evt2.getId().intValue()))) 
+                .andExpect(jsonPath("$[1].title", is("Boxercise"))); 
+    } 
+</code></pre>
+
+<p>To test POST on /timetable/event/ we need a helper function to give us a JSON string to send. We also need to retrieve from the response from POST the path where the new Event was created, then we can use this as input to a GET request to check that it was saved as we expect</p>
+
+<pre><code>    @Test 
+    public void createEvent() throws Exception { 
+        String eventJson = json( new Event( 
+                "lane swimming")); 
+        MvcResult result = this.mockMvc.perform(post("/timetable/event") 
+                .contentType(contentType) 
+                .content(eventJson)) 
+                .andExpect(status().isCreated()) 
+                .andExpect(content().contentType(contentType)) 
+                .andExpect(jsonPath("$.title", is("lane swimming"))) 
+                .andReturn(); 
+        String createdPath = result.getResponse().getHeader("Location"); 
+        this.mockMvc.perform(get(createdPath)) 
+            .andExpect(status().isOk()) 
+            .andExpect(jsonPath("$.title", is("lane swimming"))); 
+    } 
+
+    protected String json(Object o) throws IOException { 
+        ObjectMapper mapper = new ObjectMapper(); 
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL); 
+        return mapper.writeValueAsString(o); 
+    } 
+</code></pre>
+
+<p>Finally, the test for DELETE is similar- POST to create an Event, and make sure we know the URL for it, a quick GET to be sure it was there, then after DELETE check that we get 404 on a second GET request.</p>
+
+<pre><code>    @Test 
+    public void testDeleteEvent() throws Exception { 
+        String eventJson = json( new Event( 
+                "Pilates")); 
+        MvcResult result = this.mockMvc.perform(post("/timetable/event") 
+                .contentType(contentType) 
+                .content(eventJson)) 
+                .andExpect(status().isCreated()) 
+                .andExpect(content().contentType(contentType)) 
+                .andExpect(jsonPath("$.title", is("Pilates"))) 
+                .andReturn(); 
+        String createdLocation = result.getResponse().getHeader("Location"); 
+        this.mockMvc.perform(get(createdLocation)) 
+            .andExpect(status().isOk()) 
+            .andExpect(jsonPath("$.title", is("Pilates"))); 
+
+        this.mockMvc.perform(delete(createdLocation)) 
+        .andExpect(status().isOk()); 
+
+        this.mockMvc.perform(get(createdLocation)) 
+        .andExpect(status().isNotFound()); 
+    } 
+}
+</code></pre>
+
+<p>We also need an additional dependency in the maven <code>pom.xml</code>. Spring included <code>spring-boot-starter-test</code> automatically, but the <code>jsonPath</code> matcher requires an extra artifact:</p>
+
+<pre><code>  &lt;dependency&gt; 
+    &lt;groupId&gt;com.jayway.jsonpath&lt;/groupId&gt; 
+    &lt;artifactId&gt;json-path-assert&lt;/artifactId&gt; 
+    &lt;version&gt;0.8.1&lt;/version&gt; 
+    &lt;scope&gt;test&lt;/scope&gt; 
+  &lt;/dependency&gt;
+</code></pre>
+
+<p>Next we'll add a client for this API.</p>
+
+<p>Create a new project for this, again using Spring Boot. This time we'll use the web and thymeleaf options only.</p>
+
+<p>The project is <code>timetable_mvc_client</code> and its pom.xml looks like this:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; 
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt; 
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt; 
+
+  &lt;groupId&gt;org.me&lt;/groupId&gt; 
+  &lt;artifactId&gt;timetable_mvc_client&lt;/artifactId&gt; 
+  &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt; 
+  &lt;packaging&gt;jar&lt;/packaging&gt; 
+
+  &lt;name&gt;timetable_mvc_client&lt;/name&gt; 
+  &lt;description&gt;Spring boot mvc client for timetable rest service&lt;/description&gt; 
+
+  &lt;parent&gt; 
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
+    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt; 
+    &lt;version&gt;1.2.3.RELEASE&lt;/version&gt; 
+    &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt; 
+  &lt;/parent&gt; 
+
+  &lt;properties&gt; 
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt; 
+    &lt;start-class&gt;timetable_mvc_client.TimetableMvcClientApplication&lt;/start-class&gt; 
+    &lt;java.version&gt;1.8&lt;/java.version&gt; 
+  &lt;/properties&gt; 
+
+  &lt;dependencies&gt; 
+    &lt;dependency&gt; 
+      &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
+      &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt; 
+    &lt;/dependency&gt; 
+    &lt;dependency&gt; 
+      &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
+      &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt; 
+    &lt;/dependency&gt; 
+    &lt;dependency&gt; 
+      &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
+      &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt; 
+      &lt;scope&gt;test&lt;/scope&gt; 
+    &lt;/dependency&gt; 
+  &lt;/dependencies&gt; 
+
+  &lt;build&gt; 
+    &lt;plugins&gt; 
+      &lt;plugin&gt; 
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
+        &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt; 
+      &lt;/plugin&gt; 
+    &lt;/plugins&gt; 
+  &lt;/build&gt; 
+
+&lt;/project&gt;
+</code></pre>
+
+<p>Spring Boot should have generated us a class with a main method as a starter:</p>
+
+<pre><code>package timetable_mvc_client; 
+
+import org.springframework.boot.SpringApplication; 
+import org.springframework.boot.autoconfigure.SpringBootApplication; 
+
+@SpringBootApplication 
+public class TimetableMvcClientApplication { 
+
+  public static void main(String[] args) { 
+    SpringApplication.run(TimetableMvcClientApplication.class, args); 
+  } 
+} 
+</code></pre>
+
+<p>We need a controller. I've added a new package timetable_mvc_client.controllers to hold this</p>
+
+<pre><code>package timetable_mvc_client.controllers; 
+
+import java.util.Arrays; 
+import org.springframework.stereotype.Controller; 
+import org.springframework.ui.Model; 
+import org.springframework.web.bind.annotation.RequestMapping; 
+import org.springframework.web.client.RestTemplate; 
+
+import timetable_mvc_client.model.Timetable; 
+import timetable_mvc_client.model.TimetableClass; 
+
+@Controller 
+public class TimetableController { 
+
+ @RequestMapping("/timetable") 
+ public String showFullTimetable(Model model){ 
+  model.addAttribute("timetable", this.getFullTimetable()); 
+  return "full_timetable"; 
+ } 
+
+ private Timetable getFullTimetable() { 
+  RestTemplate restTemplate = new RestTemplate(); 
+  TimetableClass[] classes = restTemplate.getForObject( "http://localhost:8080/timetable", TimetableClass[].class); 
+  Timetable fullTimetable = new Timetable(); 
+  fullTimetable.setClasses(Arrays.asList(classes)); 
+  return fullTimetable; 
+ } 
+} 
+</code></pre>
+
+<pre><code>package timetable_mvc_client.controllers; 
+
+import org.springframework.http.ResponseEntity; 
+import org.springframework.stereotype.Controller; 
+import org.springframework.ui.Model; 
+import org.springframework.web.bind.annotation.RequestMapping; 
+import org.springframework.web.bind.annotation.RequestMethod; 
+import org.springframework.web.client.RestTemplate; 
+
+import timetable_mvc_client.model.TimetableClass; 
+
+@Controller 
+public class ClassController { 
+ @RequestMapping("/class") 
+ public String showCreateClassForm(Model model){ 
+  return "new_class"; 
+ } 
+
+ @RequestMapping(value="/class", method=RequestMethod.POST) 
+ public String createNewClass(TimetableClass newClass){ 
+  RestTemplate restTemplate = new RestTemplate(); 
+  ResponseEntity&lt;TimetableClass&gt; response = restTemplate.postForEntity("http://localhost:8080/timetable/event", newClass, TimetableClass.class); 
+  return "redirect:timetable"; 
+ } 
+}
+</code></pre>
+
+<p>A couple of classes for the model (data)</p>
+
+<pre><code>package timetable_mvc_client.model; 
+
+import java.util.List; 
+
+public class Timetable { 
+ private List&lt;TimetableClass&gt; classes; 
+
+ public List&lt;TimetableClass&gt; getClasses() { 
+  return classes; 
+ } 
+
+ public void setClasses(List&lt;TimetableClass&gt; classes) { 
+  this.classes = classes; 
+ } 
+} 
+</code></pre>
+
+<pre><code>package timetable_mvc_client.model; 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; 
+
+@JsonIgnoreProperties(ignoreUnknown = true) 
+public class TimetableClass { 
+ private String title; 
+ private Integer day; 
+ private String startTime; 
+ private String endTime; 
+
+ public String getTitle() { 
+  return title; 
+ } 
+ public void setTitle(String title) { 
+  this.title = title; 
+ } 
+ public Integer getDay() { 
+  return day; 
+ } 
+ public void setDay(Integer day) { 
+  this.day = day; 
+ } 
+ public String getStartTime() { 
+  return startTime; 
+ } 
+ public void setStartTime(String startTime) { 
+  this.startTime = startTime; 
+ } 
+ public String getEndTime() { 
+  return endTime; 
+ } 
+ public void setEndTime(String endTime) { 
+  this.endTime = endTime; 
+ } 
+} 
+</code></pre>
+
+<p>And a view...in the <code>src/main/resources/templates</code> folder create <code>full_timetable.html</code></p>
+
+<pre><code>&lt;!DOCTYPE html&gt; 
+
+&lt;html xmlns="http://www.w3.org/1999/xhtml" 
+   xmlns:th="http://www.thymeleaf.org"&gt; 
+
+ &lt;head&gt; 
+  &lt;title&gt;Gym Timetable&lt;/title&gt; 
+  &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt; 
+ &lt;/head&gt; 
+ &lt;body&gt; 
+ &lt;h1 th:text="#{title.timetableevents}"&gt;Timetable of Events&lt;/h1&gt; 
+  &lt;table&gt; 
+   &lt;tr&gt; 
+    &lt;th th:text="#{timetable.header.class}"&gt;CLASS&lt;/th&gt; 
+    &lt;th th:text="#{timetable.header.day}"&gt;DAY&lt;/th&gt; 
+    &lt;th th:text="#{timetable.header.startTime}"&gt;START TIME&lt;/th&gt; 
+    &lt;th th:text="#{timetable.header.endTime}"&gt;END TIME&lt;/th&gt; 
+   &lt;/tr&gt; 
+   &lt;tr th:each="gymClass : ${timetable.classes}"&gt; 
+    &lt;td th:text="${gymClass.title}"&gt;A class&lt;/td&gt; 
+    &lt;td th:text="${gymClass.day} != null ? #{day__${gymClass.day}__} : ''"&gt;day&lt;/td&gt; 
+    &lt;td th:text="${gymClass.startTime}"&gt;start&lt;/td&gt; 
+    &lt;td th:text="${gymClass.endTime}"&gt;end&lt;/td&gt; 
+   &lt;/tr&gt; 
+  &lt;/table&gt; 
+  &lt;a href="/createClass" th:href="@{/class}" th:text="#{link.createNewClass}"&gt;create&lt;/a&gt; 
+ &lt;/body&gt; 
+</code></pre>
+
+<pre><code>&lt;/html&gt; &lt;!DOCTYPE html&gt; 
+
+&lt;html xmlns="http://www.w3.org/1999/xhtml" 
+   xmlns:th="http://www.thymeleaf.org"&gt; 
+
+ &lt;head&gt; 
+  &lt;title&gt;New Class&lt;/title&gt; 
+  &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt; 
+ &lt;/head&gt; 
+ &lt;body&gt; 
+ &lt;h1 th:text="#{title.createNewClass}"&gt;New Class&lt;/h1&gt; 
+  &lt;form id="new-class-form" role="form" th:action="@{/class}" method="post" th:object="${TimetableClass}"&gt; 
+   &lt;label for="title" th:text="#{newclass.title}"&gt;title&lt;/label&gt; 
+   &lt;input type="text" id="title" name="title" value=""/&gt; 
+   &lt;label for="day" th:text="#{newclass.day}"&gt;day&lt;/label&gt; 
+   &lt;select name="day"&gt; 
+    &lt;option value="1" th:text="#{day1}"&gt;Mon&lt;/option&gt; 
+    &lt;option value="2" th:text="#{day2}"&gt;Tue&lt;/option&gt; 
+    &lt;option value="3" th:text="#{day3}"&gt;Wed&lt;/option&gt; 
+    &lt;option value="4" th:text="#{day4}"&gt;Thu&lt;/option&gt; 
+    &lt;option value="5" th:text="#{day5}"&gt;Fri&lt;/option&gt; 
+    &lt;option value="6" th:text="#{day6}"&gt;Sat&lt;/option&gt; 
+    &lt;option value="7" th:text="#{day7}"&gt;Sun&lt;/option&gt; 
+   &lt;/select&gt; 
+   &lt;label for="startTime" th:text="#{newclass.startTime}"&gt;startTime&lt;/label&gt; 
+   &lt;input type="text" id="startTime" name="startTime" value=""/&gt; 
+   &lt;label for="endTime" th:text="#{newclass.endTime}"&gt;startTime&lt;/label&gt; 
+   &lt;input type="text" id="endTime" name="endTime" value=""/&gt; 
+   &lt;div&gt; 
+     &lt;button type="submit"&gt;Save&lt;/button&gt; 
+   &lt;/div&gt; 
+  &lt;/form&gt; 
+  &lt;a href="/timetable" th:href="@{/timetable}" th:text="#{link.fullTimetable}"&gt;back&lt;/a&gt; 
+ &lt;/body&gt; 
+&lt;/html&gt;
+</code></pre>
+
+<p>The labels and static text come from <code>messages.properties</code> in <code>src/main/resources</code></p>
+
+<pre><code>title.timetableevents=What's on 
+timetable.header.class=Class 
+timetable.header.day=Day 
+timetable.header.startTime=Start Time 
+timetable.header.endTime=End Time 
+link.createNewClass=Create New Class 
+title.createNewClass=New Class 
+link.fullTimetable=Show Full Timetable 
+newclass.title=Class title: 
+newclass.day=Day: 
+newclass.startTime=Start: 
+newclass.endTime=End: 
+day1=Monday 
+day2=Tuesday 
+day3=Wednesday 
+day4=Thursday 
+day5=Friday 
+day6=Saturday 
+day7=Sunday
+</code></pre>
+
+<p>Finally, before running up the application, if it's going to run on the same host machine as the timetable rest server, we'll need to make sure that the tomcat server inside the mvc client starts on a different port. This can be set as an argument at runtime, or we can set it up in application.properties (also in <code>src/main/resources</code>)</p>
+
+<pre><code>server.port = 9080
+</code></pre>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/DebbieRoycroft/rest-tutorial">rest-tutorial</a> is maintained by <a href="https://github.com/DebbieRoycroft">DebbieRoycroft</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
