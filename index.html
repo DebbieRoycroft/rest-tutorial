@@ -26,13 +26,13 @@
 <h3>
 <a id="step-1-set-up-the-project" class="anchor" href="#step-1-set-up-the-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 1: Set up the project</h3>
 
-<p>In Eclipse, start a new spring starter project:
+<p>In Eclipse, if you have Spring Tool Suite (STS) plugin installed, you can start a new spring starter project:
 <img src="./screenshots/newproject.png" alt=""></p>
 
-<p>Set up details of the project like this - we're using Java 1.8, and Maven to build We're just going to select actuator and web for now, we can add more capabilities later on
+<p>Set up details of the project like this - we're using Java 1.8, and Maven to build We're just going to select actuator and web for now, we can add more capabilities later on by editing the Maven pom.xml file.
 <img src="./screenshots/springstarter.png" alt=""></p>
 
-<p>We can just click on 'Finish' now, and we will get a zip file downloaded with our new project in. It should look something like this:
+<p>We can just click on 'Finish' now, and we will get a zip file downloaded with our new project in, which Eclipse imports automatically. If you're not using Eclipse, or if you don't have the STS plugin you can still get a .zip starter project from <a href="https://start.spring.io/">The Spring Initializr website</a>.  Once the .zip project has been imported, it should look something like this:
 <img src="./screenshots/timetable-step0.png" alt=""></p>
 
 <p>Believe it or not we can already run this up and it will do things...Launch it in Eclipse
@@ -61,7 +61,9 @@
 ... o.s.b.a.e.mvc.EndpointHandlerMapping : Mapped "{[/trace],methods=[GET],params=[],headers=[],consumes=[],produces=[],custom=[]}" ...
 </code></pre>
 
-<p>Try out some of the others</p>
+<p>You can try out some of the others to see what they produce.</p>
+
+<p>Full source code for this step is <a href="https://github.com/DebbieRoycroft/rest-tutorial/tree/step-1">here</a></p>
 
 <h3>
 <a id="step-2-add-a-simple-rest-endpoint" class="anchor" href="#step-2-add-a-simple-rest-endpoint" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 2: Add a simple REST endpoint</h3>
