@@ -335,16 +335,15 @@
 
 <p>In the same folder, we can create a new class <code>TimetableControllerTest</code> to test our rest controller</p>
 
-<pre><code>package timetable; 
-... 
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable</span>; 
+<span class="pl-c1">...</span> 
 
-@RunWith(SpringJUnit4ClassRunner.class) 
-@SpringApplicationConfiguration(classes = TimetableApplication.class) 
-@WebAppConfiguration 
-public class TimetableControllerTest { 
-
-    private MockMvc mockMvc; 
-</code></pre>
+@RunWith(<span class="pl-smi">SpringJUnit4ClassRunner</span><span class="pl-k">.</span>class) 
+@SpringApplicationConfiguration(classes <span class="pl-k">=</span> <span class="pl-smi">TimetableApplication</span><span class="pl-k">.</span>class) 
+@<span class="pl-smi">WebAppConfiguration</span> 
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TimetableControllerTest</span> { 
+<span class="pl-c1">...</span>
+    <span class="pl-k">private</span> <span class="pl-smi">MockMvc</span> mockMvc; </pre></div>
 
 <p>We've told JUnit to user the SpringJUnit4ClassRunner to run the tests so it will be expecting to set up a Spring framework context</p>
 
@@ -352,128 +351,144 @@ public class TimetableControllerTest {
 
 <p>The <code>@WebAppConfiguration</code> and <code>MockMvc</code> mean we won't be using the full tomcat server for these tests</p>
 
-<pre><code>    @Autowired 
-    private WebApplicationContext webApplicationContext; 
+<div class="highlight highlight-java"><pre>    @<span class="pl-smi">Autowired</span> 
+    <span class="pl-k">private</span> <span class="pl-smi">WebApplicationContext</span> webApplicationContext; 
 
-    @Autowired 
-    private EventRepository eventRepo; 
+    @<span class="pl-smi">Autowired</span> 
+    <span class="pl-k">private</span> <span class="pl-smi">EventRepository</span> eventRepo; 
 
-    @Before  
-    public void setup() throws Exception { 
-        this.mockMvc = webAppContextSetup(webApplicationContext).build(); 
-        this.eventRepo.deleteAllInBatch(); 
-    } 
-</code></pre>
+    @<span class="pl-smi">Before</span>  
+    <span class="pl-k">public</span> <span class="pl-k">void</span> setup() throws <span class="pl-smi">Exception</span> { 
+        <span class="pl-v">this</span><span class="pl-k">.</span>mockMvc <span class="pl-k">=</span> webAppContextSetup(webApplicationContext)<span class="pl-k">.</span>build(); 
+        <span class="pl-v">this</span><span class="pl-k">.</span>eventRepo<span class="pl-k">.</span>deleteAllInBatch(); 
+    } </pre></div>
 
 <p>Before each test we make sure we have a clean set up with our <code>mockMvc</code> and also ensure that the in memory database is cleared down so it won't matter what order the tests are run in</p>
 
 <p>The simplest thing to test is to check for the 404 not found response for an unknown event:</p>
 
-<pre><code>    @Test 
-    public void testEventNotFound() throws Exception { 
-        mockMvc.perform(get("/timetable/event/5")) 
-                .andExpect(status().isNotFound()); 
-    } 
-</code></pre>
+<div class="highlight highlight-java"><pre>    @<span class="pl-smi">Test</span> 
+    <span class="pl-k">public</span> <span class="pl-k">void</span> testEventNotFound() throws <span class="pl-smi">Exception</span> { 
+        mockMvc<span class="pl-k">.</span>perform(get(<span class="pl-s"><span class="pl-pds">"</span>/timetable/event/5<span class="pl-pds">"</span></span>)) 
+                .andExpect(status()<span class="pl-k">.</span>isNotFound()); 
+    } </pre></div>
 
 <p>This test checks for the GET on timetable/event/1 - making sure that we have an object in the database to be at that URL.</p>
 
 <p>The expectations from the <code>mockMvc</code> show we're expecting to get back JSON from the API, test the status from the header, and test the body of the response with the <code>jsonPath</code> matcher.</p>
 
-<pre><code>   private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(), 
-            MediaType.APPLICATION_JSON.getSubtype(), 
-            Charset.forName("utf8")); 
+<div class="highlight highlight-java"><pre>   <span class="pl-k">private</span> <span class="pl-smi">MediaType</span> contentType <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">MediaType</span>(<span class="pl-smi">MediaType</span><span class="pl-c1"><span class="pl-k">.</span>APPLICATION_JSON</span><span class="pl-k">.</span>getType(), 
+            <span class="pl-smi">MediaType</span><span class="pl-c1"><span class="pl-k">.</span>APPLICATION_JSON</span><span class="pl-k">.</span>getSubtype(), 
+            <span class="pl-smi">Charset</span><span class="pl-k">.</span>forName(<span class="pl-s"><span class="pl-pds">"</span>utf8<span class="pl-pds">"</span></span>)); 
 
-    @Test 
-    public void readSingleEvent() throws Exception { 
-        Event evt = this.eventRepo.save(new Event("Yoga")); 
-        mockMvc.perform(get("/timetable/event/" + evt.getId())) 
-                .andExpect(status().isOk()) 
-                .andExpect(content().contentType(contentType)) 
-                .andExpect(jsonPath("$.id", is(evt.getId().intValue()))) 
-                .andExpect(jsonPath("$.title", is("Yoga"))); 
-    } 
-</code></pre>
+    @<span class="pl-smi">Test</span>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> readSingleEvent() throws <span class="pl-smi">Exception</span> {
+        <span class="pl-smi">Event</span> evt <span class="pl-k">=</span> <span class="pl-v">this</span><span class="pl-k">.</span>eventRepo<span class="pl-k">.</span>save(<span class="pl-k">new</span> <span class="pl-smi">Event</span>(<span class="pl-s"><span class="pl-pds">"</span>Yoga<span class="pl-pds">"</span></span>,
+                <span class="pl-c1">4</span>, <span class="pl-s"><span class="pl-pds">"</span>8pm<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>9.30pm<span class="pl-pds">"</span></span>));
+        mockMvc<span class="pl-k">.</span>perform(get(<span class="pl-s"><span class="pl-pds">"</span>/timetable/event/<span class="pl-pds">"</span></span> <span class="pl-k">+</span> evt<span class="pl-k">.</span>getId()))
+                .andExpect(status()<span class="pl-k">.</span>isOk())
+                .andExpect(content()<span class="pl-k">.</span>contentType(contentType))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.id<span class="pl-pds">"</span></span>, is(evt<span class="pl-k">.</span>getId()<span class="pl-k">.</span>intValue())))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.title<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>Yoga<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.day<span class="pl-pds">"</span></span>, is(<span class="pl-c1">4</span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.startTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>8pm<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.endTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>9.30pm<span class="pl-pds">"</span></span>)));
+    }</pre></div>
 
 <p>The test for GET /timetable/ is very similar, but it's expecting a collection back in the body- we can use matchers to test that too</p>
 
-<pre><code>    @Test 
-    public void readEvents() throws Exception { 
-        Event evt1 = this.eventRepo.save(new Event("Yoga")); 
-        Event evt2 = this.eventRepo.save(new Event("Boxercise")); 
-        mockMvc.perform(get("/timetable")) 
-                .andExpect(status().isOk()) 
-                .andExpect(content().contentType(contentType)) 
-                .andExpect(jsonPath("$", hasSize(2))) 
-                .andExpect(jsonPath("$[0].id", is(evt1.getId().intValue()))) 
-                .andExpect(jsonPath("$[0].title", is("Yoga"))) 
-                .andExpect(jsonPath("$[1].id", is(evt2.getId().intValue()))) 
-                .andExpect(jsonPath("$[1].title", is("Boxercise"))); 
-    } 
-</code></pre>
+<div class="highlight highlight-java"><pre>    @<span class="pl-smi">Test</span>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> readEvents() throws <span class="pl-smi">Exception</span> {
+        <span class="pl-smi">Event</span> evt1 <span class="pl-k">=</span> <span class="pl-v">this</span><span class="pl-k">.</span>eventRepo<span class="pl-k">.</span>save( <span class="pl-k">new</span> <span class="pl-smi">Event</span>(<span class="pl-s"><span class="pl-pds">"</span>Yoga<span class="pl-pds">"</span></span>, 
+                <span class="pl-c1">5</span>, <span class="pl-s"><span class="pl-pds">"</span>7pm<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>8pm<span class="pl-pds">"</span></span>));          
+        <span class="pl-smi">Event</span> evt2 <span class="pl-k">=</span> <span class="pl-v">this</span><span class="pl-k">.</span>eventRepo<span class="pl-k">.</span>save(<span class="pl-k">new</span> <span class="pl-smi">Event</span>(<span class="pl-s"><span class="pl-pds">"</span>Boxercise<span class="pl-pds">"</span></span>, 
+                <span class="pl-c1">6</span>, <span class="pl-s"><span class="pl-pds">"</span>10am<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>11am<span class="pl-pds">"</span></span>));
+
+        mockMvc<span class="pl-k">.</span>perform(get(<span class="pl-s"><span class="pl-pds">"</span>/timetable<span class="pl-pds">"</span></span>))
+                .andExpect(status()<span class="pl-k">.</span>isOk())
+                .andExpect(content()<span class="pl-k">.</span>contentType(contentType))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$<span class="pl-pds">"</span></span>, hasSize(<span class="pl-c1">2</span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[0].id<span class="pl-pds">"</span></span>, is(evt1<span class="pl-k">.</span>getId()<span class="pl-k">.</span>intValue())))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[0].title<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>Yoga<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[0].day<span class="pl-pds">"</span></span>, is(<span class="pl-c1">5</span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[0].startTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>7pm<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[0].endTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>8pm<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[1].id<span class="pl-pds">"</span></span>, is(evt2<span class="pl-k">.</span>getId()<span class="pl-k">.</span>intValue())))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[1].title<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>Boxercise<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[1].day<span class="pl-pds">"</span></span>, is(<span class="pl-c1">6</span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[1].startTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>10am<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$[1].endTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>11am<span class="pl-pds">"</span></span>)));
+    }</pre></div>
 
 <p>To test POST on /timetable/event/ we need a helper function to give us a JSON string to send. We also need to retrieve from the response from POST the path where the new Event was created, then we can use this as input to a GET request to check that it was saved as we expect</p>
 
-<pre><code>    @Test 
-    public void createEvent() throws Exception { 
-        String eventJson = json( new Event( 
-                "lane swimming")); 
-        MvcResult result = this.mockMvc.perform(post("/timetable/event") 
-                .contentType(contentType) 
-                .content(eventJson)) 
-                .andExpect(status().isCreated()) 
-                .andExpect(content().contentType(contentType)) 
-                .andExpect(jsonPath("$.title", is("lane swimming"))) 
-                .andReturn(); 
-        String createdPath = result.getResponse().getHeader("Location"); 
-        this.mockMvc.perform(get(createdPath)) 
-            .andExpect(status().isOk()) 
-            .andExpect(jsonPath("$.title", is("lane swimming"))); 
-    } 
+<div class="highlight highlight-java"><pre>    @<span class="pl-smi">Test</span>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> createEvent() throws <span class="pl-smi">Exception</span> {
+        <span class="pl-smi">String</span> eventJson <span class="pl-k">=</span> json( <span class="pl-k">new</span> <span class="pl-smi">Event</span>(
+                <span class="pl-s"><span class="pl-pds">"</span>lane swimming<span class="pl-pds">"</span></span>, <span class="pl-c1">3</span>, <span class="pl-s"><span class="pl-pds">"</span>4pm<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>9pm<span class="pl-pds">"</span></span>));
 
-    protected String json(Object o) throws IOException { 
-        ObjectMapper mapper = new ObjectMapper(); 
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL); 
-        return mapper.writeValueAsString(o); 
-    } 
-</code></pre>
+        <span class="pl-smi">MvcResult</span> result <span class="pl-k">=</span> <span class="pl-v">this</span><span class="pl-k">.</span>mockMvc<span class="pl-k">.</span>perform(post(<span class="pl-s"><span class="pl-pds">"</span>/timetable/event<span class="pl-pds">"</span></span>)
+                .contentType(contentType)
+                .content(eventJson))
+                .andExpect(status()<span class="pl-k">.</span>isCreated())
+                .andExpect(content()<span class="pl-k">.</span>contentType(contentType))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.title<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>lane swimming<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.day<span class="pl-pds">"</span></span>, is(<span class="pl-c1">3</span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.startTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>4pm<span class="pl-pds">"</span></span>)))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.endTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>9pm<span class="pl-pds">"</span></span>)))
+                .andReturn();
+        <span class="pl-smi">String</span> createdPath <span class="pl-k">=</span> result<span class="pl-k">.</span>getResponse()<span class="pl-k">.</span>getHeader(<span class="pl-s"><span class="pl-pds">"</span>Location<span class="pl-pds">"</span></span>);
+        <span class="pl-v">this</span><span class="pl-k">.</span>mockMvc<span class="pl-k">.</span>perform(get(createdPath))
+            .andExpect(status()<span class="pl-k">.</span>isOk())
+            .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.title<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>lane swimming<span class="pl-pds">"</span></span>)));
+    }
+
+    <span class="pl-k">protected</span> <span class="pl-smi">String</span> json(<span class="pl-smi">Object</span> o) throws <span class="pl-smi">IOException</span> { 
+        <span class="pl-smi">ObjectMapper</span> mapper <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">ObjectMapper</span>(); 
+        mapper<span class="pl-k">.</span>setSerializationInclusion(<span class="pl-smi">JsonInclude</span><span class="pl-k">.</span><span class="pl-smi">Include</span><span class="pl-c1"><span class="pl-k">.</span>NON_NULL</span>); 
+        <span class="pl-k">return</span> mapper<span class="pl-k">.</span>writeValueAsString(o); 
+    } </pre></div>
 
 <p>Finally, the test for DELETE is similar- POST to create an Event, and make sure we know the URL for it, a quick GET to be sure it was there, then after DELETE check that we get 404 on a second GET request.</p>
 
-<pre><code>    @Test 
-    public void testDeleteEvent() throws Exception { 
-        String eventJson = json( new Event( 
-                "Pilates")); 
-        MvcResult result = this.mockMvc.perform(post("/timetable/event") 
-                .contentType(contentType) 
-                .content(eventJson)) 
-                .andExpect(status().isCreated()) 
-                .andExpect(content().contentType(contentType)) 
-                .andExpect(jsonPath("$.title", is("Pilates"))) 
-                .andReturn(); 
-        String createdLocation = result.getResponse().getHeader("Location"); 
-        this.mockMvc.perform(get(createdLocation)) 
-            .andExpect(status().isOk()) 
-            .andExpect(jsonPath("$.title", is("Pilates"))); 
+<div class="highlight highlight-java"><pre>    @<span class="pl-smi">Test</span>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> testDeleteEvent() throws <span class="pl-smi">Exception</span> {
+        <span class="pl-smi">String</span> eventJson <span class="pl-k">=</span> json( <span class="pl-k">new</span> <span class="pl-smi">Event</span>(
+                <span class="pl-s"><span class="pl-pds">"</span>Pilates<span class="pl-pds">"</span></span>, <span class="pl-c1">7</span>, <span class="pl-s"><span class="pl-pds">"</span>9am<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>11am<span class="pl-pds">"</span></span>));
 
-        this.mockMvc.perform(delete(createdLocation)) 
-        .andExpect(status().isOk()); 
+        <span class="pl-smi">MvcResult</span> result <span class="pl-k">=</span> <span class="pl-v">this</span><span class="pl-k">.</span>mockMvc<span class="pl-k">.</span>perform(post(<span class="pl-s"><span class="pl-pds">"</span>/timetable/event<span class="pl-pds">"</span></span>)
+                .contentType(contentType)
+                .content(eventJson))
+                .andExpect(status()<span class="pl-k">.</span>isCreated())
+                .andExpect(content()<span class="pl-k">.</span>contentType(contentType))
+                .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.title<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>Pilates<span class="pl-pds">"</span></span>)))
+                .andReturn();
+        <span class="pl-smi">String</span> createdLocation <span class="pl-k">=</span> result<span class="pl-k">.</span>getResponse()<span class="pl-k">.</span>getHeader(<span class="pl-s"><span class="pl-pds">"</span>Location<span class="pl-pds">"</span></span>);
+        <span class="pl-v">this</span><span class="pl-k">.</span>mockMvc<span class="pl-k">.</span>perform(get(createdLocation))
+            .andExpect(status()<span class="pl-k">.</span>isOk())
+            .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.title<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>Pilates<span class="pl-pds">"</span></span>)))
+            .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.day<span class="pl-pds">"</span></span>, is(<span class="pl-c1">7</span>)))
+            .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.startTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>9am<span class="pl-pds">"</span></span>)))
+            .andExpect(jsonPath(<span class="pl-s"><span class="pl-pds">"</span>$.endTime<span class="pl-pds">"</span></span>, is(<span class="pl-s"><span class="pl-pds">"</span>11am<span class="pl-pds">"</span></span>)));
 
-        this.mockMvc.perform(get(createdLocation)) 
-        .andExpect(status().isNotFound()); 
-    } 
-}
-</code></pre>
+        <span class="pl-v">this</span><span class="pl-k">.</span>mockMvc<span class="pl-k">.</span>perform(delete(createdLocation))
+        .andExpect(status()<span class="pl-k">.</span>isOk());
+
+        <span class="pl-v">this</span><span class="pl-k">.</span>mockMvc<span class="pl-k">.</span>perform(get(createdLocation))
+        .andExpect(status()<span class="pl-k">.</span>isNotFound());
+    }</pre></div>
 
 <p>We also need an additional dependency in the maven <code>pom.xml</code>. Spring included <code>spring-boot-starter-test</code> automatically, but the <code>jsonPath</code> matcher requires an extra artifact:</p>
 
-<pre><code>  &lt;dependency&gt; 
-    &lt;groupId&gt;com.jayway.jsonpath&lt;/groupId&gt; 
-    &lt;artifactId&gt;json-path-assert&lt;/artifactId&gt; 
-    &lt;version&gt;0.8.1&lt;/version&gt; 
-    &lt;scope&gt;test&lt;/scope&gt; 
-  &lt;/dependency&gt;
-</code></pre>
+<div class="highlight highlight-xml"><pre>  &lt;<span class="pl-ent">dependency</span>&gt; 
+    &lt;<span class="pl-ent">groupId</span>&gt;com.jayway.jsonpath&lt;/<span class="pl-ent">groupId</span>&gt; 
+    &lt;<span class="pl-ent">artifactId</span>&gt;json-path-assert&lt;/<span class="pl-ent">artifactId</span>&gt; 
+    &lt;<span class="pl-ent">version</span>&gt;0.8.1&lt;/<span class="pl-ent">version</span>&gt; 
+    &lt;<span class="pl-ent">scope</span>&gt;test&lt;/<span class="pl-ent">scope</span>&gt; 
+  &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+
+<h3>
+<a id="step-6-adding-a-java-rest-client" class="anchor" href="#step-6-adding-a-java-rest-client" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 6: Adding a Java REST client</h3>
 
 <p>Next we'll add a client for this API.</p>
 
