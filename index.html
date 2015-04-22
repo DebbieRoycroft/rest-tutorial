@@ -164,9 +164,9 @@
     &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter-data-jpa&lt;/<span class="pl-ent">artifactId</span>&gt; 
   &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
 
-<p>This gives us the spring data JPA libraries and the h2 in memory database. You could use another database such as MongoDB, MySQL</p>
+<p>This gives us the spring data JPA libraries and the h2 in memory database. You could use another database such as MongoDB or MySQL</p>
 
-<p>Now we'll change Event</p>
+<p>Now we'll change <code>Event</code></p>
 
 <div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable.model</span>;
 
@@ -217,7 +217,7 @@
 
 <p>We will need to add a default constructor so that JPA can create the object, and we can remove <code>id</code> from the current constructor because the Id is now annotated as auto-generated (<code>@GeneratedValue</code>).  I've added in an Integer to represent the day of the week, and two Strings to model the start and end times.</p>
 
-<p>We also need to add a repository for our persisted Event, we can do this with minimal code just by adding a new interface in the <code>timetable.model</code> package:</p>
+<p>We also need to add a repository for our persisted <code>Event</code>, we can do this with minimal code just by adding a new interface in the <code>timetable.model</code> package:</p>
 
 <div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable.model</span>; 
 
@@ -273,58 +273,63 @@
 ]
 </code></pre>
 
+<h3>
+<a id="step-4-adding-more-methods" class="anchor" href="#step-4-adding-more-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 4: Adding more methods</h3>
+
 <p>On to adding the remainder of the API</p>
 
 <p>Now we can add a method to implement GET for an individual Event. The id of the event is used as part of the URL (this is the path variable).</p>
 
-<pre><code>    @RequestMapping(value="/event/{id}", method=RequestMethod.GET) 
-    public @ResponseBody Event getEventById(@PathVariable Long id){ 
-        Event result = eventRepo.findOne(id); 
-        if (result == null){ 
-            throw new EventNotFoundException(id); 
+<div class="highlight highlight-java"><pre>    @RequestMapping(value<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/event/{id}<span class="pl-pds">"</span></span>, method<span class="pl-k">=</span><span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>GET</span>) 
+    <span class="pl-k">public</span> @<span class="pl-smi">ResponseBody</span> <span class="pl-smi">Event</span> getEventById(@<span class="pl-smi">PathVariable</span> <span class="pl-smi">Long</span> id){ 
+        <span class="pl-smi">Event</span> result <span class="pl-k">=</span> eventRepo<span class="pl-k">.</span>findOne(id); 
+        <span class="pl-k">if</span> (result <span class="pl-k">==</span> <span class="pl-c1">null</span>){ 
+            <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">EventNotFoundException</span>(id); 
         } 
-        return result; 
-    }
-</code></pre>
+        <span class="pl-k">return</span> result; 
+    }</pre></div>
 
 <p>If it can't find the event in the URL, it will throw an exception, this is annotated with <code>HttpStatus.NOT_FOUND</code> (404), which Spring will return for us if this exception is thrown</p>
 
-<pre><code>@ResponseStatus(HttpStatus.NOT_FOUND) 
-class EventNotFoundException extends RuntimeException { 
-    private static final long serialVersionUID = -9174199038443186877L; 
+<div class="highlight highlight-java"><pre>@ResponseStatus(<span class="pl-smi">HttpStatus</span><span class="pl-c1"><span class="pl-k">.</span>NOT_FOUND</span>) 
+<span class="pl-k">class</span> <span class="pl-en">EventNotFoundException</span> <span class="pl-k">extends</span> <span class="pl-e">RuntimeException</span> { 
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-k">long</span> serialVersionUID <span class="pl-k">=</span> <span class="pl-k">-</span><span class="pl-c1">9174199038443186877L</span>; 
 
-    public EventNotFoundException(Long eventId){ 
-        super("could not find event '" + eventId + "'."); 
+    <span class="pl-k">public</span> <span class="pl-en">EventNotFoundException</span>(<span class="pl-smi">Long</span> <span class="pl-v">eventId</span>){ 
+        <span class="pl-v">super</span>(<span class="pl-s"><span class="pl-pds">"</span>could not find event '<span class="pl-pds">"</span></span> <span class="pl-k">+</span> eventId <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>'.<span class="pl-pds">"</span></span>); 
     } 
-}
-</code></pre>
+}</pre></div>
 
-<p>http://localhost:8080/timetable/event/1 should give us back the yoga class, http://localhost:8080/timetable/event/2 the boxercise class</p>
+<p>Now if we use GET on http://localhost:8080/timetable/event/1 should give us back the yoga class, http://localhost:8080/timetable/event/2 will give the boxercise class</p>
 
 <p>Next, the POST method can add a new class to the repository. We generate the id automatically, and return the path to the generated event in the http header for the response. This path can be used as the URL for a subsequent request e.g. GET, DELETE</p>
 
 <p>I'm using POST rather than PUT to implement the create, because I don't know the full URL for the new object (because the id is auto-generated). If the client were generating the id, then the PUT method might be more appropriate to use here</p>
 
-<pre><code>    @RequestMapping(value="/event", method=RequestMethod.POST) 
-    public ResponseEntity&lt;?&gt; addEvent(@RequestBody Event evt){ 
-        Event result = eventRepo.save(evt); 
-        HttpHeaders httpHeaders = new HttpHeaders(); 
-        httpHeaders.setLocation(ServletUriComponentsBuilder 
-                .fromCurrentRequest().path("/{id}") 
-                .buildAndExpand(result.getId()).toUri()); 
-        return new ResponseEntity&lt;&gt;(result,httpHeaders, HttpStatus.CREATED); 
-    }
-</code></pre>
+<div class="highlight highlight-java"><pre>    @RequestMapping(value<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/event<span class="pl-pds">"</span></span>, method<span class="pl-k">=</span><span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>POST</span>) 
+    <span class="pl-k">public</span> <span class="pl-k">ResponseEntity&lt;?&gt;</span> addEvent(@<span class="pl-smi">RequestBody</span> <span class="pl-smi">Event</span> evt){ 
+        <span class="pl-smi">Event</span> result <span class="pl-k">=</span> eventRepo<span class="pl-k">.</span>save(evt); 
+        <span class="pl-smi">HttpHeaders</span> httpHeaders <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">HttpHeaders</span>(); 
+        httpHeaders<span class="pl-k">.</span>setLocation(<span class="pl-smi">ServletUriComponentsBuilder</span> 
+                .fromCurrentRequest()<span class="pl-k">.</span>path(<span class="pl-s"><span class="pl-pds">"</span>/{id}<span class="pl-pds">"</span></span>) 
+                .buildAndExpand(result<span class="pl-k">.</span>getId())<span class="pl-k">.</span>toUri()); 
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-k">ResponseEntity&lt;&gt;</span>(result,httpHeaders, <span class="pl-smi">HttpStatus</span><span class="pl-c1"><span class="pl-k">.</span>CREATED</span>); 
+    }</pre></div>
 
 <p>Finally, the DELETE method will remove an event</p>
 
-<pre><code>    @RequestMapping(value="/event/{id}", method=RequestMethod.DELETE) 
-    public void deleteEvent(@PathVariable Long id){ 
-        eventRepo.delete(id); 
-    }
-</code></pre>
+<div class="highlight highlight-java"><pre>    @RequestMapping(value<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/event/{id}<span class="pl-pds">"</span></span>, method<span class="pl-k">=</span><span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>DELETE</span>) 
+    <span class="pl-k">public</span> <span class="pl-k">void</span> deleteEvent(@<span class="pl-smi">PathVariable</span> <span class="pl-smi">Long</span> id){ 
+        eventRepo<span class="pl-k">.</span>delete(id); 
+    }</pre></div>
 
-<p>Now we have all these interfaces implemented, we can test them manually, using Chrome REST Console, or cURL, but it would be good to get some automated tests.</p>
+<p>Now we have all these interfaces implemented, we can test them manually using a tool like Postman, Chrome REST Console, or cURL. This is what the POST call looks like in Postman:
+<img src="./screenshots/postman.png" alt=""></p>
+
+<h3>
+<a id="step-5-automated-testing" class="anchor" href="#step-5-automated-testing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 5: Automated testing</h3>
+
+<p>Manual testing is something, but it would be good to get some automated tests.</p>
 
 <p>Spring Boot bundles some unit testing libraries automatically. When we created the project we automatically got a <code>src/test/java</code> folder, with a <code>TimetableApplicationTests</code> in it.</p>
 
