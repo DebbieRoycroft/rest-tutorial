@@ -502,140 +502,143 @@
 <h3>
 <a id="step-6-adding-a-java-rest-client" class="anchor" href="#step-6-adding-a-java-rest-client" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 6: Adding a Java REST client</h3>
 
-<p>Next we'll add a client for this API.</p>
+<p>Next we'll add a client for this API.  Again Spring provides libraries bundled that give us REST client capabilities.  In order to be able to see what this client is doing, and to show some more of Spring's framework, this part brings in the MVC functionality to give a web GUI client as well.</p>
 
-<p>Create a new project for this, again using Spring Boot. This time we'll use the web and thymeleaf options only.</p>
+<p>Create a new project for this <code>timetable_mvc_client</code>, again using Spring Boot as we did in step 1. This time we'll use the web and thymeleaf options only.  Thymeleaf is a template engine that lets us produce html pages and have sections substituted with content from the application.</p>
 
-<p>The project is <code>timetable_mvc_client</code> and its pom.xml looks like this:</p>
+<p>Spring Boot should have generated us a class with a main method as a starter, just like in the previous project:</p>
 
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; 
-&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt; 
-  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt; 
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable_mvc_client</span>; 
 
-  &lt;groupId&gt;org.me&lt;/groupId&gt; 
-  &lt;artifactId&gt;timetable_mvc_client&lt;/artifactId&gt; 
-  &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt; 
-  &lt;packaging&gt;jar&lt;/packaging&gt; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.boot.SpringApplication</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.boot.autoconfigure.SpringBootApplication</span>; 
 
-  &lt;name&gt;timetable_mvc_client&lt;/name&gt; 
-  &lt;description&gt;Spring boot mvc client for timetable rest service&lt;/description&gt; 
+@<span class="pl-smi">SpringBootApplication</span> 
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TimetableMvcClientApplication</span> { 
 
-  &lt;parent&gt; 
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
-    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt; 
-    &lt;version&gt;1.2.3.RELEASE&lt;/version&gt; 
-    &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt; 
-  &lt;/parent&gt; 
-
-  &lt;properties&gt; 
-    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt; 
-    &lt;start-class&gt;timetable_mvc_client.TimetableMvcClientApplication&lt;/start-class&gt; 
-    &lt;java.version&gt;1.8&lt;/java.version&gt; 
-  &lt;/properties&gt; 
-
-  &lt;dependencies&gt; 
-    &lt;dependency&gt; 
-      &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
-      &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt; 
-    &lt;/dependency&gt; 
-    &lt;dependency&gt; 
-      &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
-      &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt; 
-    &lt;/dependency&gt; 
-    &lt;dependency&gt; 
-      &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
-      &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt; 
-      &lt;scope&gt;test&lt;/scope&gt; 
-    &lt;/dependency&gt; 
-  &lt;/dependencies&gt; 
-
-  &lt;build&gt; 
-    &lt;plugins&gt; 
-      &lt;plugin&gt; 
-        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
-        &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt; 
-      &lt;/plugin&gt; 
-    &lt;/plugins&gt; 
-  &lt;/build&gt; 
-
-&lt;/project&gt;
-</code></pre>
-
-<p>Spring Boot should have generated us a class with a main method as a starter:</p>
-
-<pre><code>package timetable_mvc_client; 
-
-import org.springframework.boot.SpringApplication; 
-import org.springframework.boot.autoconfigure.SpringBootApplication; 
-
-@SpringBootApplication 
-public class TimetableMvcClientApplication { 
-
-  public static void main(String[] args) { 
-    SpringApplication.run(TimetableMvcClientApplication.class, args); 
+  <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">void</span> <span class="pl-en">main</span>(<span class="pl-k">String</span>[] <span class="pl-v">args</span>) { 
+    <span class="pl-smi">SpringApplication</span><span class="pl-k">.</span>run(<span class="pl-smi">TimetableMvcClientApplication</span><span class="pl-k">.</span>class, args); 
   } 
-} 
-</code></pre>
+} </pre></div>
 
-<p>We need a controller. I've added a new package timetable_mvc_client.controllers to hold this</p>
+<p>To implement our web pages, we need a controller or two. I've added a new package timetable_mvc_client.controllers to hold them.  In terms of annotations they look very similar to the controller in the REST server, but they return content differently, using on to Spring's MVC view handling to provide the webpage content.</p>
 
-<pre><code>package timetable_mvc_client.controllers; 
+<p>I've created two controller classes, one for each of two pages.  The first one is for the main page 'timetable' which will show all the contents from a call made to the other application's /timetable interface.</p>
 
-import java.util.Arrays; 
-import org.springframework.stereotype.Controller; 
-import org.springframework.ui.Model; 
-import org.springframework.web.bind.annotation.RequestMapping; 
-import org.springframework.web.client.RestTemplate; 
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable_mvc_client.controllers</span>;
 
-import timetable_mvc_client.model.Timetable; 
-import timetable_mvc_client.model.TimetableClass; 
+<span class="pl-k">import</span> <span class="pl-smi">java.util.Arrays</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.stereotype.Controller</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.ui.Model</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMapping</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.client.RestTemplate</span>;
 
-@Controller 
-public class TimetableController { 
+<span class="pl-k">import</span> <span class="pl-smi">timetable_mvc_client.model.Timetable</span>;
+<span class="pl-k">import</span> <span class="pl-smi">timetable_mvc_client.model.TimetableClass</span>;
 
- @RequestMapping("/timetable") 
- public String showFullTimetable(Model model){ 
-  model.addAttribute("timetable", this.getFullTimetable()); 
-  return "full_timetable"; 
+@<span class="pl-smi">Controller</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TimetableController</span> {
+
+    <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/timetable<span class="pl-pds">"</span></span>)
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">showFullTimetable</span>(<span class="pl-smi">Model</span> <span class="pl-v">model</span>){
+        model<span class="pl-k">.</span>addAttribute(<span class="pl-s"><span class="pl-pds">"</span>timetable<span class="pl-pds">"</span></span>, <span class="pl-v">this</span><span class="pl-k">.</span>getFullTimetable());
+        <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>full_timetable<span class="pl-pds">"</span></span>;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-smi">Timetable</span> <span class="pl-en">getFullTimetable</span>() {
+        <span class="pl-smi">RestTemplate</span> restTemplate <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">RestTemplate</span>();
+        <span class="pl-k">TimetableClass</span>[] classes <span class="pl-k">=</span> restTemplate<span class="pl-k">.</span>getForObject( 
+                <span class="pl-s"><span class="pl-pds">"</span>http://localhost:8080/timetable<span class="pl-pds">"</span></span>, 
+                <span class="pl-k">TimetableClass</span>[]<span class="pl-k">.</span>class);
+        <span class="pl-smi">Timetable</span> fullTimetable <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">Timetable</span>();
+        fullTimetable<span class="pl-k">.</span>setClasses(<span class="pl-smi">Arrays</span><span class="pl-k">.</span>asList(classes));
+        <span class="pl-k">return</span> fullTimetable;
+    }
+}</pre></div>
+
+<p><code>showFullTimetable</code> will take all GET requests to /timetable (without a <code>method</code> property the default is GET) and puts some data into the <code>Model</code> used by the Thymeleaf template in the html view.  It uses <code>getFullTimetable</code> to make the REST call to the other webservice, mapping the response on to its own data model classes.  The <code>TimetableClass</code> has the same data structure as the <code>Event</code> does in the other project. 
+Here's the <code>TimetableClass</code>:</p>
+
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable_mvc_client.model</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">com.fasterxml.jackson.annotation.JsonIgnoreProperties</span>;
+
+@JsonIgnoreProperties(ignoreUnknown <span class="pl-k">=</span> <span class="pl-c1">true</span>)
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TimetableClass</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> title;
+    <span class="pl-k">private</span> <span class="pl-smi">Integer</span> day;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> startTime;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> endTime;
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getTitle</span>() {
+        <span class="pl-k">return</span> title;
+    }
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">setTitle</span>(<span class="pl-smi">String</span> <span class="pl-v">title</span>) {
+        <span class="pl-v">this</span><span class="pl-k">.</span>title <span class="pl-k">=</span> title;
+    }
+    <span class="pl-k">public</span> <span class="pl-smi">Integer</span> <span class="pl-en">getDay</span>() {
+        <span class="pl-k">return</span> day;
+    }
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">setDay</span>(<span class="pl-smi">Integer</span> <span class="pl-v">day</span>) {
+        <span class="pl-v">this</span><span class="pl-k">.</span>day <span class="pl-k">=</span> day;
+    }
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getStartTime</span>() {
+        <span class="pl-k">return</span> startTime;
+    }
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">setStartTime</span>(<span class="pl-smi">String</span> <span class="pl-v">startTime</span>) {
+        <span class="pl-v">this</span><span class="pl-k">.</span>startTime <span class="pl-k">=</span> startTime;
+    }
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getEndTime</span>() {
+        <span class="pl-k">return</span> endTime;
+    }
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">setEndTime</span>(<span class="pl-smi">String</span> <span class="pl-v">endTime</span>) {
+        <span class="pl-v">this</span><span class="pl-k">.</span>endTime <span class="pl-k">=</span> endTime;
+    }
+}</pre></div>
+
+<p>This is in the <code>timetable_mvc_client.model</code> package.  It's annotated with <code>@JsonIgnoreProperties(ignoreUnknown = true)</code> which means that if the server were to return a JSON object with properties this class doesn't map it will ignore them.  This allows the client to be more loosely coupled to the server, it doesn't have to implement every change made to the server's interface.  The other class in the <code>model</code> package is <code>Timetable</code>.  It is just a container for <code>TimetableClass</code> used by the view:</p>
+
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable_mvc_client.model</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">java.util.List</span>;
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Timetable</span> {
+    <span class="pl-k">private</span> <span class="pl-k">List&lt;<span class="pl-smi">TimetableClass</span>&gt;</span> classes;
+
+    <span class="pl-k">public</span> <span class="pl-k">List&lt;<span class="pl-smi">TimetableClass</span>&gt;</span> <span class="pl-en">getClasses</span>() {
+        <span class="pl-k">return</span> classes;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">setClasses</span>(<span class="pl-k">List&lt;<span class="pl-smi">TimetableClass</span>&gt;</span> <span class="pl-v">classes</span>) {
+        <span class="pl-v">this</span><span class="pl-k">.</span>classes <span class="pl-k">=</span> classes;
+    }
+}</pre></div>
+
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable_mvc_client.controllers</span>; 
+
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.http.ResponseEntity</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.stereotype.Controller</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.ui.Model</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMapping</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMethod</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.client.RestTemplate</span>; 
+
+<span class="pl-k">import</span> <span class="pl-smi">timetable_mvc_client.model.TimetableClass</span>; 
+
+@<span class="pl-smi">Controller</span> 
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ClassController</span> { 
+ <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/class<span class="pl-pds">"</span></span>) 
+ <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">showCreateClassForm</span>(<span class="pl-smi">Model</span> <span class="pl-v">model</span>){ 
+  <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>new_class<span class="pl-pds">"</span></span>; 
  } 
 
- private Timetable getFullTimetable() { 
-  RestTemplate restTemplate = new RestTemplate(); 
-  TimetableClass[] classes = restTemplate.getForObject( "http://localhost:8080/timetable", TimetableClass[].class); 
-  Timetable fullTimetable = new Timetable(); 
-  fullTimetable.setClasses(Arrays.asList(classes)); 
-  return fullTimetable; 
+ <span class="pl-k">@RequestMapping</span>(<span class="pl-c1">value</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/class<span class="pl-pds">"</span></span>, <span class="pl-c1">method</span><span class="pl-k">=</span><span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>POST</span>) 
+ <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">createNewClass</span>(<span class="pl-smi">TimetableClass</span> <span class="pl-v">newClass</span>){ 
+  <span class="pl-smi">RestTemplate</span> restTemplate <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">RestTemplate</span>(); 
+  <span class="pl-k">ResponseEntity&lt;<span class="pl-smi">TimetableClass</span>&gt;</span> response <span class="pl-k">=</span> restTemplate<span class="pl-k">.</span>postForEntity(<span class="pl-s"><span class="pl-pds">"</span>http://localhost:8080/timetable/event<span class="pl-pds">"</span></span>, newClass, <span class="pl-smi">TimetableClass</span><span class="pl-k">.</span>class); 
+  <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>redirect:timetable<span class="pl-pds">"</span></span>; 
  } 
-} 
-</code></pre>
-
-<pre><code>package timetable_mvc_client.controllers; 
-
-import org.springframework.http.ResponseEntity; 
-import org.springframework.stereotype.Controller; 
-import org.springframework.ui.Model; 
-import org.springframework.web.bind.annotation.RequestMapping; 
-import org.springframework.web.bind.annotation.RequestMethod; 
-import org.springframework.web.client.RestTemplate; 
-
-import timetable_mvc_client.model.TimetableClass; 
-
-@Controller 
-public class ClassController { 
- @RequestMapping("/class") 
- public String showCreateClassForm(Model model){ 
-  return "new_class"; 
- } 
-
- @RequestMapping(value="/class", method=RequestMethod.POST) 
- public String createNewClass(TimetableClass newClass){ 
-  RestTemplate restTemplate = new RestTemplate(); 
-  ResponseEntity&lt;TimetableClass&gt; response = restTemplate.postForEntity("http://localhost:8080/timetable/event", newClass, TimetableClass.class); 
-  return "redirect:timetable"; 
- } 
-}
-</code></pre>
+}</pre></div>
 
 <p>A couple of classes for the model (data)</p>
 
@@ -652,44 +655,6 @@ public class Timetable {
 
  public void setClasses(List&lt;TimetableClass&gt; classes) { 
   this.classes = classes; 
- } 
-} 
-</code></pre>
-
-<pre><code>package timetable_mvc_client.model; 
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties; 
-
-@JsonIgnoreProperties(ignoreUnknown = true) 
-public class TimetableClass { 
- private String title; 
- private Integer day; 
- private String startTime; 
- private String endTime; 
-
- public String getTitle() { 
-  return title; 
- } 
- public void setTitle(String title) { 
-  this.title = title; 
- } 
- public Integer getDay() { 
-  return day; 
- } 
- public void setDay(Integer day) { 
-  this.day = day; 
- } 
- public String getStartTime() { 
-  return startTime; 
- } 
- public void setStartTime(String startTime) { 
-  this.startTime = startTime; 
- } 
- public String getEndTime() { 
-  return endTime; 
- } 
- public void setEndTime(String endTime) { 
-  this.endTime = endTime; 
  } 
 } 
 </code></pre>
