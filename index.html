@@ -614,120 +614,115 @@ Here's the <code>TimetableClass</code>:</p>
     }
 }</pre></div>
 
-<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable_mvc_client.controllers</span>; 
+<p>This is the view for the front page <code>full_timetable.html</code> in the <code>src/main/resources/templates</code> folder: </p>
 
-<span class="pl-k">import</span> <span class="pl-smi">org.springframework.http.ResponseEntity</span>; 
-<span class="pl-k">import</span> <span class="pl-smi">org.springframework.stereotype.Controller</span>; 
-<span class="pl-k">import</span> <span class="pl-smi">org.springframework.ui.Model</span>; 
-<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMapping</span>; 
-<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMethod</span>; 
-<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.client.RestTemplate</span>; 
+<div class="highlight highlight-html"><pre>&lt;!DOCTYPE html&gt;
 
-<span class="pl-k">import</span> <span class="pl-smi">timetable_mvc_client.model.TimetableClass</span>; 
+&lt;<span class="pl-ent">html</span> <span class="pl-e">xmlns</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.w3.org/1999/xhtml<span class="pl-pds">"</span></span>
+      <span class="pl-e">xmlns:th</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.thymeleaf.org<span class="pl-pds">"</span></span>&gt;
 
-@<span class="pl-smi">Controller</span> 
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ClassController</span> { 
- <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/class<span class="pl-pds">"</span></span>) 
- <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">showCreateClassForm</span>(<span class="pl-smi">Model</span> <span class="pl-v">model</span>){ 
-  <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>new_class<span class="pl-pds">"</span></span>; 
- } 
+  &lt;<span class="pl-ent">head</span>&gt;
+    &lt;<span class="pl-ent">title</span>&gt;Gym Timetable&lt;/<span class="pl-ent">title</span>&gt;
+    &lt;<span class="pl-ent">meta</span> <span class="pl-e">http-equiv</span>=<span class="pl-s"><span class="pl-pds">"</span>Content-Type<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>text/html; charset=UTF-8<span class="pl-pds">"</span></span> /&gt;
+  &lt;/<span class="pl-ent">head</span>&gt;
+    &lt;<span class="pl-ent">body</span>&gt;
+    &lt;<span class="pl-ent">h1</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{title.timetableevents}<span class="pl-pds">"</span></span>&gt;Timetable of Events&lt;/<span class="pl-ent">h1</span>&gt;
+    &lt;<span class="pl-ent">table</span>&gt;
+      &lt;<span class="pl-ent">tr</span>&gt;
+        &lt;<span class="pl-ent">th</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{timetable.header.class}<span class="pl-pds">"</span></span>&gt;CLASS&lt;/<span class="pl-ent">th</span>&gt;
+        &lt;<span class="pl-ent">th</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{timetable.header.day}<span class="pl-pds">"</span></span>&gt;DAY&lt;/<span class="pl-ent">th</span>&gt;
+        &lt;<span class="pl-ent">th</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{timetable.header.startTime}<span class="pl-pds">"</span></span>&gt;START TIME&lt;/<span class="pl-ent">th</span>&gt;
+        &lt;<span class="pl-ent">th</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{timetable.header.endTime}<span class="pl-pds">"</span></span>&gt;END TIME&lt;/<span class="pl-ent">th</span>&gt;
+      &lt;/<span class="pl-ent">tr</span>&gt;
+      &lt;<span class="pl-ent">tr</span> <span class="pl-e">th:each</span>=<span class="pl-s"><span class="pl-pds">"</span>gymClass : ${timetable.classes}<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">td</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>${gymClass.title}<span class="pl-pds">"</span></span>&gt;A class&lt;/<span class="pl-ent">td</span>&gt;
+        &lt;<span class="pl-ent">td</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>${gymClass.day} != null ? #{day__${gymClass.day}__} : ''<span class="pl-pds">"</span></span>&gt;day&lt;/<span class="pl-ent">td</span>&gt;
+        &lt;<span class="pl-ent">td</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>${gymClass.startTime}<span class="pl-pds">"</span></span>&gt;start&lt;/<span class="pl-ent">td</span>&gt;
+        &lt;<span class="pl-ent">td</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>${gymClass.endTime}<span class="pl-pds">"</span></span>&gt;end&lt;/<span class="pl-ent">td</span>&gt;
+      &lt;/<span class="pl-ent">tr</span>&gt;
+    &lt;/<span class="pl-ent">table</span>&gt;
+    &lt;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>/createClass<span class="pl-pds">"</span></span> <span class="pl-e">th:href</span>=<span class="pl-s"><span class="pl-pds">"</span>@{/class}<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{link.createNewClass}<span class="pl-pds">"</span></span>&gt;create&lt;/<span class="pl-ent">a</span>&gt;
+    &lt;/<span class="pl-ent">body</span>&gt;
+&lt;/<span class="pl-ent">html</span>&gt;</pre></div>
 
- <span class="pl-k">@RequestMapping</span>(<span class="pl-c1">value</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/class<span class="pl-pds">"</span></span>, <span class="pl-c1">method</span><span class="pl-k">=</span><span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>POST</span>) 
- <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">createNewClass</span>(<span class="pl-smi">TimetableClass</span> <span class="pl-v">newClass</span>){ 
-  <span class="pl-smi">RestTemplate</span> restTemplate <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">RestTemplate</span>(); 
-  <span class="pl-k">ResponseEntity&lt;<span class="pl-smi">TimetableClass</span>&gt;</span> response <span class="pl-k">=</span> restTemplate<span class="pl-k">.</span>postForEntity(<span class="pl-s"><span class="pl-pds">"</span>http://localhost:8080/timetable/event<span class="pl-pds">"</span></span>, newClass, <span class="pl-smi">TimetableClass</span><span class="pl-k">.</span>class); 
-  <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>redirect:timetable<span class="pl-pds">"</span></span>; 
- } 
+<p>The <code>th</code> markers are the Thymeleaf templates. In this case the '#' markers are all resolved to message keys in a messages.properties file (this can be localised e.g. messages_fr_FR.properties to give a French translation of the page). The '$' markers are variables from the model.</p>
+
+<p>When the application is run it gives a page something like this:</p>
+
+<p>The second page, is there to create a new class, and uses the POST method on Event in the original webservice.  Here is the controller for the class page:</p>
+
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable_mvc_client.controllers</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.http.ResponseEntity</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.stereotype.Controller</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.ui.Model</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMapping</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMethod</span>;
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.client.RestTemplate</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">timetable_mvc_client.model.TimetableClass</span>;
+
+@<span class="pl-smi">Controller</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ClassController</span> {
+    <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/class<span class="pl-pds">"</span></span>)
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">showCreateClassForm</span>(<span class="pl-smi">Model</span> <span class="pl-v">model</span>){
+        <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>new_class<span class="pl-pds">"</span></span>;
+    }
+
+    <span class="pl-k">@RequestMapping</span>(<span class="pl-c1">value</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/class<span class="pl-pds">"</span></span>, <span class="pl-c1">method</span><span class="pl-k">=</span><span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>POST</span>)
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">createNewClass</span>(<span class="pl-smi">TimetableClass</span> <span class="pl-v">newClass</span>){
+        <span class="pl-smi">RestTemplate</span> restTemplate <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">RestTemplate</span>();
+        <span class="pl-k">ResponseEntity&lt;<span class="pl-smi">TimetableClass</span>&gt;</span> response <span class="pl-k">=</span> 
+                restTemplate<span class="pl-k">.</span>postForEntity(
+                        <span class="pl-s"><span class="pl-pds">"</span>http://localhost:8080/timetable/event<span class="pl-pds">"</span></span>, 
+                        newClass, <span class="pl-smi">TimetableClass</span><span class="pl-k">.</span>class);
+        <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>redirect:timetable<span class="pl-pds">"</span></span>;
+    }
 }</pre></div>
 
-<p>A couple of classes for the model (data)</p>
+<p>The first method just gets the form page sent back to the browser for the user to fill in, the second is invoked when the user submits the form (POST method) and will in turn call POST for timetable/event in the other webservice, using the data passed in from the form.</p>
 
-<pre><code>package timetable_mvc_client.model; 
+<p>This is the view (<code>new_class.html</code> in src/main/resources):</p>
 
-import java.util.List; 
+<div class="highlight highlight-html"><pre>&lt;!DOCTYPE html&gt;
 
-public class Timetable { 
- private List&lt;TimetableClass&gt; classes; 
+&lt;<span class="pl-ent">html</span> <span class="pl-e">xmlns</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.w3.org/1999/xhtml<span class="pl-pds">"</span></span>
+      <span class="pl-e">xmlns:th</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.thymeleaf.org<span class="pl-pds">"</span></span>&gt;
 
- public List&lt;TimetableClass&gt; getClasses() { 
-  return classes; 
- } 
+  &lt;<span class="pl-ent">head</span>&gt;
+    &lt;<span class="pl-ent">title</span>&gt;New Class&lt;/<span class="pl-ent">title</span>&gt;
+    &lt;<span class="pl-ent">meta</span> <span class="pl-e">http-equiv</span>=<span class="pl-s"><span class="pl-pds">"</span>Content-Type<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>text/html; charset=UTF-8<span class="pl-pds">"</span></span> /&gt;
+  &lt;/<span class="pl-ent">head</span>&gt;
+    &lt;<span class="pl-ent">body</span>&gt;
+    &lt;<span class="pl-ent">h1</span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{title.createNewClass}<span class="pl-pds">"</span></span>&gt;New Class&lt;/<span class="pl-ent">h1</span>&gt;
+    &lt;<span class="pl-ent">form</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>new-class-form<span class="pl-pds">"</span></span> <span class="pl-e">role</span>=<span class="pl-s"><span class="pl-pds">"</span>form<span class="pl-pds">"</span></span> <span class="pl-e">th:action</span>=<span class="pl-s"><span class="pl-pds">"</span>@{/class}<span class="pl-pds">"</span></span> <span class="pl-e">method</span>=<span class="pl-s"><span class="pl-pds">"</span>post<span class="pl-pds">"</span></span> <span class="pl-e">th:object</span>=<span class="pl-s"><span class="pl-pds">"</span>${TimetableClass}<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">label</span> <span class="pl-e">for</span>=<span class="pl-s"><span class="pl-pds">"</span>title<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{newclass.title}<span class="pl-pds">"</span></span>&gt;title&lt;/<span class="pl-ent">label</span>&gt;
+        &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text<span class="pl-pds">"</span></span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>title<span class="pl-pds">"</span></span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>title<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>/&gt;
+        &lt;<span class="pl-ent">label</span> <span class="pl-e">for</span>=<span class="pl-s"><span class="pl-pds">"</span>day<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{newclass.day}<span class="pl-pds">"</span></span>&gt;day&lt;/<span class="pl-ent">label</span>&gt; 
+        &lt;<span class="pl-ent">select</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>day<span class="pl-pds">"</span></span>&gt;
+            &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{day1}<span class="pl-pds">"</span></span>&gt;Mon&lt;/<span class="pl-ent">option</span>&gt;
+            &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>2<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{day2}<span class="pl-pds">"</span></span>&gt;Tue&lt;/<span class="pl-ent">option</span>&gt;
+            &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>3<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{day3}<span class="pl-pds">"</span></span>&gt;Wed&lt;/<span class="pl-ent">option</span>&gt;
+            &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>4<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{day4}<span class="pl-pds">"</span></span>&gt;Thu&lt;/<span class="pl-ent">option</span>&gt;
+            &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>5<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{day5}<span class="pl-pds">"</span></span>&gt;Fri&lt;/<span class="pl-ent">option</span>&gt;
+            &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>6<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{day6}<span class="pl-pds">"</span></span>&gt;Sat&lt;/<span class="pl-ent">option</span>&gt;
+            &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>7<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{day7}<span class="pl-pds">"</span></span>&gt;Sun&lt;/<span class="pl-ent">option</span>&gt;
+        &lt;/<span class="pl-ent">select</span>&gt;
+        &lt;<span class="pl-ent">label</span> <span class="pl-e">for</span>=<span class="pl-s"><span class="pl-pds">"</span>startTime<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{newclass.startTime}<span class="pl-pds">"</span></span>&gt;startTime&lt;/<span class="pl-ent">label</span>&gt;
+        &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text<span class="pl-pds">"</span></span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>startTime<span class="pl-pds">"</span></span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>startTime<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>/&gt;
+        &lt;<span class="pl-ent">label</span> <span class="pl-e">for</span>=<span class="pl-s"><span class="pl-pds">"</span>endTime<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{newclass.endTime}<span class="pl-pds">"</span></span>&gt;startTime&lt;/<span class="pl-ent">label</span>&gt;
+        &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text<span class="pl-pds">"</span></span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>endTime<span class="pl-pds">"</span></span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>endTime<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>/&gt;
+        &lt;<span class="pl-ent">div</span>&gt;
+            &lt;<span class="pl-ent">button</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>submit<span class="pl-pds">"</span></span>&gt;Save&lt;/<span class="pl-ent">button</span>&gt;
+        &lt;/<span class="pl-ent">div</span>&gt;
+    &lt;/<span class="pl-ent">form</span>&gt; 
+    &lt;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>/timetable<span class="pl-pds">"</span></span> <span class="pl-e">th:href</span>=<span class="pl-s"><span class="pl-pds">"</span>@{/timetable}<span class="pl-pds">"</span></span> <span class="pl-e">th:text</span>=<span class="pl-s"><span class="pl-pds">"</span>#{link.fullTimetable}<span class="pl-pds">"</span></span>&gt;back&lt;/<span class="pl-ent">a</span>&gt;
+    &lt;/<span class="pl-ent">body</span>&gt;
+&lt;/<span class="pl-ent">html</span>&gt;</pre></div>
 
- public void setClasses(List&lt;TimetableClass&gt; classes) { 
-  this.classes = classes; 
- } 
-} 
-</code></pre>
+<p>It's page looks something like this:</p>
 
-<p>And a view...in the <code>src/main/resources/templates</code> folder create <code>full_timetable.html</code></p>
-
-<pre><code>&lt;!DOCTYPE html&gt; 
-
-&lt;html xmlns="http://www.w3.org/1999/xhtml" 
-   xmlns:th="http://www.thymeleaf.org"&gt; 
-
- &lt;head&gt; 
-  &lt;title&gt;Gym Timetable&lt;/title&gt; 
-  &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt; 
- &lt;/head&gt; 
- &lt;body&gt; 
- &lt;h1 th:text="#{title.timetableevents}"&gt;Timetable of Events&lt;/h1&gt; 
-  &lt;table&gt; 
-   &lt;tr&gt; 
-    &lt;th th:text="#{timetable.header.class}"&gt;CLASS&lt;/th&gt; 
-    &lt;th th:text="#{timetable.header.day}"&gt;DAY&lt;/th&gt; 
-    &lt;th th:text="#{timetable.header.startTime}"&gt;START TIME&lt;/th&gt; 
-    &lt;th th:text="#{timetable.header.endTime}"&gt;END TIME&lt;/th&gt; 
-   &lt;/tr&gt; 
-   &lt;tr th:each="gymClass : ${timetable.classes}"&gt; 
-    &lt;td th:text="${gymClass.title}"&gt;A class&lt;/td&gt; 
-    &lt;td th:text="${gymClass.day} != null ? #{day__${gymClass.day}__} : ''"&gt;day&lt;/td&gt; 
-    &lt;td th:text="${gymClass.startTime}"&gt;start&lt;/td&gt; 
-    &lt;td th:text="${gymClass.endTime}"&gt;end&lt;/td&gt; 
-   &lt;/tr&gt; 
-  &lt;/table&gt; 
-  &lt;a href="/createClass" th:href="@{/class}" th:text="#{link.createNewClass}"&gt;create&lt;/a&gt; 
- &lt;/body&gt; 
-</code></pre>
-
-<pre><code>&lt;/html&gt; &lt;!DOCTYPE html&gt; 
-
-&lt;html xmlns="http://www.w3.org/1999/xhtml" 
-   xmlns:th="http://www.thymeleaf.org"&gt; 
-
- &lt;head&gt; 
-  &lt;title&gt;New Class&lt;/title&gt; 
-  &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt; 
- &lt;/head&gt; 
- &lt;body&gt; 
- &lt;h1 th:text="#{title.createNewClass}"&gt;New Class&lt;/h1&gt; 
-  &lt;form id="new-class-form" role="form" th:action="@{/class}" method="post" th:object="${TimetableClass}"&gt; 
-   &lt;label for="title" th:text="#{newclass.title}"&gt;title&lt;/label&gt; 
-   &lt;input type="text" id="title" name="title" value=""/&gt; 
-   &lt;label for="day" th:text="#{newclass.day}"&gt;day&lt;/label&gt; 
-   &lt;select name="day"&gt; 
-    &lt;option value="1" th:text="#{day1}"&gt;Mon&lt;/option&gt; 
-    &lt;option value="2" th:text="#{day2}"&gt;Tue&lt;/option&gt; 
-    &lt;option value="3" th:text="#{day3}"&gt;Wed&lt;/option&gt; 
-    &lt;option value="4" th:text="#{day4}"&gt;Thu&lt;/option&gt; 
-    &lt;option value="5" th:text="#{day5}"&gt;Fri&lt;/option&gt; 
-    &lt;option value="6" th:text="#{day6}"&gt;Sat&lt;/option&gt; 
-    &lt;option value="7" th:text="#{day7}"&gt;Sun&lt;/option&gt; 
-   &lt;/select&gt; 
-   &lt;label for="startTime" th:text="#{newclass.startTime}"&gt;startTime&lt;/label&gt; 
-   &lt;input type="text" id="startTime" name="startTime" value=""/&gt; 
-   &lt;label for="endTime" th:text="#{newclass.endTime}"&gt;startTime&lt;/label&gt; 
-   &lt;input type="text" id="endTime" name="endTime" value=""/&gt; 
-   &lt;div&gt; 
-     &lt;button type="submit"&gt;Save&lt;/button&gt; 
-   &lt;/div&gt; 
-  &lt;/form&gt; 
-  &lt;a href="/timetable" th:href="@{/timetable}" th:text="#{link.fullTimetable}"&gt;back&lt;/a&gt; 
- &lt;/body&gt; 
-&lt;/html&gt;
-</code></pre>
-
-<p>The labels and static text come from <code>messages.properties</code> in <code>src/main/resources</code></p>
+<p>The labels and static text for both view pages come from <code>messages.properties</code> in <code>src/main/resources</code>:</p>
 
 <pre><code>title.timetableevents=What's on 
 timetable.header.class=Class 
@@ -755,7 +750,20 @@ day7=Sunday
 <pre><code>server.port = 9080
 </code></pre>
 
+<p>Make sure both applications are running.  Now you should be able to go to http://localhost:9080/timetable in your browser and see the initial contents of the database in the first page, follow the link to create a new class, submit the form and then be taken back to the first page and see the updated results.</p>
+
 <p>Full source code for this step is <a href="https://github.com/DebbieRoycroft/rest-tutorial/tree/step-6">here</a></p>
+
+<p>We've managed to put together two applications now, both are very simple, we don't have anything in the way of styling in the GUI, and we don't have a very advanced REST interface, but it should illustrate the basic parts needed for both a server and a client to be able to use a REST api.</p>
+
+<p>Spring Boot has plenty more to offer for REST apis:</p>
+
+<ul>
+<li> Spring Security can be added to control access to your interfaces or UIs</li>
+<li> Spring HATEOAS has methods for adding hyperlinks to your REST interfaces to decouple the client and server implementations even further</li>
+<li> Spring Boot bundles Swagger which can be used to provide documentation for your REST interface generated from your code
+There's lots more information and tutorials at the <a href="http://projects.spring.io/spring-boot/">Spring Boot home page</a>.  If you have the STS plugin in eclipse, the Spring dashboard takes you to this page and you can download the tutorial examples into your IDE. </li>
+</ul>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/DebbieRoycroft/rest-tutorial">rest-tutorial</a> is maintained by <a href="https://github.com/DebbieRoycroft">DebbieRoycroft</a>.</span>
