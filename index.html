@@ -23,6 +23,9 @@
 
 <p>We're going to build a small sample application using Spring Boot. The application is for a leisure centre that wants to be able to show everyone the classes it offers and let its staff edit those classes</p>
 
+<h3>
+<a id="step-1-set-up-the-project" class="anchor" href="#step-1-set-up-the-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 1: Set up the project</h3>
+
 <p>In Eclipse, start a new spring starter project:
 <img src="./screenshots/newproject.png" alt=""></p>
 
@@ -60,33 +63,35 @@
 
 <p>Try out some of the others</p>
 
+<h3>
+<a id="step-2-add-a-simple-rest-endpoint" class="anchor" href="#step-2-add-a-simple-rest-endpoint" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 2: Add a simple REST endpoint</h3>
+
 <p>OK. So far so good, let's add some of our own code now.</p>
 
 <p>For the REST service, we need two classes, the controller class that tells Spring what function will handle which URL/method and a data model class.</p>
 
 <p>I'm going to put the data model classes into their own package just to help keep things tidy, so I added timetable.model. Within that package, I created a simple data model class <code>Event</code>:</p>
 
-<pre><code>package timetable.model; 
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable.model</span>; 
 
-public class Event { 
-    private Long id; 
-    private String title; 
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Event</span> { 
+    <span class="pl-k">private</span> <span class="pl-smi">Long</span> id; 
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> title; 
 
-    public Event(Long id, String title) { 
-        this.id = id; 
-        this.title = title; 
+    <span class="pl-k">public</span> <span class="pl-en">Event</span>(<span class="pl-smi">Long</span> <span class="pl-v">id</span>, <span class="pl-smi">String</span> <span class="pl-v">title</span>) { 
+        <span class="pl-v">this</span><span class="pl-k">.</span>id <span class="pl-k">=</span> id; 
+        <span class="pl-v">this</span><span class="pl-k">.</span>title <span class="pl-k">=</span> title; 
     } 
 
-    public Long getId() { 
-        return id; 
+    <span class="pl-k">public</span> <span class="pl-smi">Long</span> <span class="pl-en">getId</span>() { 
+        <span class="pl-k">return</span> id; 
     } 
 
-    public String getTitle() { 
-        return title; 
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getTitle</span>() { 
+        <span class="pl-k">return</span> title; 
     } 
 
-}
-</code></pre>
+}</pre></div>
 
 <p>We don't need any annotations on this class, or anything else to tell Spring how to handle it</p>
 
@@ -96,31 +101,30 @@ public class Event {
 
 <p>Here's what it looks like (this is in the timetable package)</p>
 
-<pre><code>package timetable; 
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable</span>; 
 
-import java.util.ArrayList; 
-import java.util.List; 
+<span class="pl-k">import</span> <span class="pl-smi">java.util.ArrayList</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">java.util.List</span>; 
 
-import org.springframework.stereotype.Controller; 
-import org.springframework.web.bind.annotation.RequestMapping; 
-import org.springframework.web.bind.annotation.RequestMethod; 
-import org.springframework.web.bind.annotation.ResponseBody; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.stereotype.Controller</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMapping</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.RequestMethod</span>; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.web.bind.annotation.ResponseBody</span>; 
 
-import timetable.model.Event; 
+<span class="pl-k">import</span> <span class="pl-smi">timetable.model.Event</span>; 
 
-@Controller 
-@RequestMapping("/timetable") 
-public class TimetableController { 
+@<span class="pl-smi">Controller</span> 
+@RequestMapping(<span class="pl-s"><span class="pl-pds">"</span>/timetable<span class="pl-pds">"</span></span>) 
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TimetableController</span> { 
 
-    @RequestMapping(method=RequestMethod.GET) 
-    public @ResponseBody List&lt;Event&gt; getEvents(){ 
-        List&lt;Event&gt; events = new ArrayList&lt;&gt;(); 
-        events.add(new Event(1L,"Yoga")); 
-        events.add(new Event(2L,"Boxercise")); 
-        return events;         
+    <span class="pl-k">@RequestMapping</span>(<span class="pl-c1">method</span><span class="pl-k">=</span><span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>GET</span>) 
+    <span class="pl-k">public</span> @<span class="pl-smi">ResponseBody</span> <span class="pl-k">List&lt;<span class="pl-smi">Event</span>&gt;</span> <span class="pl-en">getEvents</span>(){ 
+        <span class="pl-k">List&lt;<span class="pl-smi">Event</span>&gt;</span> events <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-k">ArrayList&lt;&gt;</span>(); 
+        events<span class="pl-k">.</span>add(<span class="pl-k">new</span> <span class="pl-smi">Event</span>(<span class="pl-c1">1L</span>,<span class="pl-s"><span class="pl-pds">"</span>Yoga<span class="pl-pds">"</span></span>)); 
+        events<span class="pl-k">.</span>add(<span class="pl-k">new</span> <span class="pl-smi">Event</span>(<span class="pl-c1">2L</span>,<span class="pl-s"><span class="pl-pds">"</span>Boxercise<span class="pl-pds">"</span></span>)); 
+        <span class="pl-k">return</span> events;         
     } 
-}
-</code></pre>
+}</pre></div>
 
 <p>The <code>@Controller</code> annotation tells Spring this is a Controller- it's mapping some endpoints.</p>
 
@@ -142,77 +146,131 @@ public class TimetableController {
 <pre><code>[{"id":1,"title":"Yoga"},{"id":2,"title":"Boxercise"}]
 </code></pre>
 
-<p>Next we'll implement some methods for the Event resource, these will use the URL http://localhost:8080/timetable/event</p>
+<h3>
+<a id="step-3-add-in-jpa" class="anchor" href="#step-3-add-in-jpa" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 3: Add in JPA</h3>
 
-<p>But before we do that, we will refactor the Event object slightly, so that we use JPA persistence</p>
+<p>We will need implement some methods for the Event resource, these will use the URL http://localhost:8080/timetable/event</p>
+
+<p>But before we do that, we will refactor the Event object slightly, so that we use JPA persistence, and we'll extend the object a bit so that it can represent the data a bit better</p>
 
 <p>We need to add some dependencies to the pom.xml file inside the <code>&lt;dependencies&gt;</code> tag:</p>
 
-<pre><code>  &lt;dependency&gt; 
-    &lt;groupId&gt;com.h2database&lt;/groupId&gt; 
-    &lt;artifactId&gt;h2&lt;/artifactId&gt; 
-  &lt;/dependency&gt; 
-  &lt;dependency&gt; 
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 
-    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt; 
-  &lt;/dependency&gt;
-</code></pre>
+<div class="highlight highlight-xml"><pre>  &lt;<span class="pl-ent">dependency</span>&gt; 
+    &lt;<span class="pl-ent">groupId</span>&gt;com.h2database&lt;/<span class="pl-ent">groupId</span>&gt; 
+    &lt;<span class="pl-ent">artifactId</span>&gt;h2&lt;/<span class="pl-ent">artifactId</span>&gt; 
+  &lt;/<span class="pl-ent">dependency</span>&gt; 
+  &lt;<span class="pl-ent">dependency</span>&gt; 
+    &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt; 
+    &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter-data-jpa&lt;/<span class="pl-ent">artifactId</span>&gt; 
+  &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
 
 <p>This gives us the spring data JPA libraries and the h2 in memory database. You could use another database such as MongoDB, MySQL</p>
 
 <p>Now we'll change Event</p>
 
-<pre><code>@Entity 
-public class Event { 
-    @Id 
-    @GeneratedValue 
-    private Long id; 
-    private String title;
-</code></pre>
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable.model</span>;
 
-<p>We will need to add a default constructor so that JPA can create the object, and we can remove <code>id</code> from the current constructor because the Id is now annotated as auto-generated (<code>@GeneratedValue</code>), so the constructors end up looking like this:</p>
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Entity</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.GeneratedValue</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Id</span>;
 
-<pre><code>    public Event() {} 
+@<span class="pl-smi">Entity</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Event</span> {
+    <span class="pl-k">@Id</span>
+    <span class="pl-k">@GeneratedValue</span>
+    <span class="pl-k">private</span> <span class="pl-smi">Long</span> id;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> title;
+    <span class="pl-k">private</span> <span class="pl-smi">Integer</span> day;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> startTime;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> endTime;
 
-    public Event(String title) { 
-        this.title = title; 
-    } 
-</code></pre>
+    <span class="pl-k">public</span> <span class="pl-en">Event</span>() {}
+
+    <span class="pl-k">public</span> <span class="pl-en">Event</span>(<span class="pl-smi">String</span> <span class="pl-v">title</span>, <span class="pl-smi">Integer</span> <span class="pl-v">day</span>, <span class="pl-smi">String</span> <span class="pl-v">startTime</span>, <span class="pl-smi">String</span> <span class="pl-v">endTime</span>) {
+        <span class="pl-v">this</span><span class="pl-k">.</span>title <span class="pl-k">=</span> title;
+        <span class="pl-v">this</span><span class="pl-k">.</span>day <span class="pl-k">=</span> day;
+        <span class="pl-v">this</span><span class="pl-k">.</span>startTime <span class="pl-k">=</span> startTime;
+        <span class="pl-v">this</span><span class="pl-k">.</span>endTime <span class="pl-k">=</span> endTime;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">Long</span> <span class="pl-en">getId</span>() {
+        <span class="pl-k">return</span> id;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getTitle</span>() {
+        <span class="pl-k">return</span> title;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">Integer</span> <span class="pl-en">getDay</span>() {
+        <span class="pl-k">return</span> day;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getStartTime</span>() {
+        <span class="pl-k">return</span> startTime;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getEndTime</span>() {
+        <span class="pl-k">return</span> endTime;
+    }
+
+}</pre></div>
+
+<p>We will need to add a default constructor so that JPA can create the object, and we can remove <code>id</code> from the current constructor because the Id is now annotated as auto-generated (<code>@GeneratedValue</code>).  I've added in an Integer to represent the day of the week, and two Strings to model the start and end times.</p>
 
 <p>We also need to add a repository for our persisted Event, we can do this with minimal code just by adding a new interface in the <code>timetable.model</code> package:</p>
 
-<pre><code>package timetable.model; 
+<div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable.model</span>; 
 
-import org.springframework.data.jpa.repository.JpaRepository; 
+<span class="pl-k">import</span> <span class="pl-smi">org.springframework.data.jpa.repository.JpaRepository</span>; 
 
-public interface EventRepository extends JpaRepository&lt;Event, Long&gt; { 
+<span class="pl-k">public</span> <span class="pl-k">interface</span> <span class="pl-en">EventRepository</span> <span class="pl-k">extends</span> <span class="pl-e">JpaRepository&lt;<span class="pl-smi">Event</span>, <span class="pl-smi">Long</span>&gt;</span> { 
 
-}
-</code></pre>
+}</pre></div>
 
 <p>We will need to access the <code>EventRepository</code> from the <code>TimetableController</code>, so in that class we add a new member:</p>
 
-<pre><code>  @Autowired   EventRepository eventRepo;
-</code></pre>
+<div class="highlight highlight-java"><pre>  @<span class="pl-smi">Autowired</span>   <span class="pl-smi">EventRepository</span> eventRepo;</pre></div>
 
-<p>We can initialise it with some default values in the <code>TimetableApplication</code> class with this method</p>
+<p>Then we can change the <code>TimetableController</code> <code>getEvents()</code> method to use the repository:</p>
 
-<pre><code>    @Bean 
-    CommandLineRunner init(EventRepository eventRepository) { 
-        return (evt)-&gt; {  
-            eventRepository.save( new Event("Yoga")); 
-            eventRepository.save( new Event("Boxercise")); 
-        };         
-    }
-</code></pre>
+<div class="highlight highlight-java"><pre>    @RequestMapping(method<span class="pl-k">=</span><span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>GET</span>) 
+    <span class="pl-k">public</span> @<span class="pl-smi">ResponseBody</span> <span class="pl-k">Collection&lt;<span class="pl-smi">Event</span>&gt;</span> getEvents(){ 
+        <span class="pl-k">return</span> eventRepo<span class="pl-k">.</span>findAll(); 
 
-<p>Finally we can change the <code>TimetableController</code> <code>getEvents()</code> method to use the repository:</p>
+    }</pre></div>
 
-<pre><code>    @RequestMapping(method=RequestMethod.GET) 
-    public @ResponseBody Collection&lt;Event&gt; getEvents(){ 
-        return eventRepo.findAll(); 
+<p>We can initialise the repository with some default values in the <code>TimetableApplication</code> class with this method, which uses a lambda to create a <code>CommandLineRunner</code> class that gets run when Spring initialises:</p>
 
-    }
+<div class="highlight highlight-java"><pre>    @<span class="pl-smi">Bean</span>
+    <span class="pl-smi">CommandLineRunner</span> init(<span class="pl-smi">EventRepository</span> eventRepository) {
+        <span class="pl-k">return</span> (evt)<span class="pl-k">-</span><span class="pl-k">&gt;</span> { 
+            eventRepository<span class="pl-k">.</span>save( <span class="pl-k">new</span> <span class="pl-smi">Event</span>(<span class="pl-s"><span class="pl-pds">"</span>Yoga<span class="pl-pds">"</span></span>, 
+                <span class="pl-c1">4</span>,
+                <span class="pl-s"><span class="pl-pds">"</span>8pm<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>9pm<span class="pl-pds">"</span></span>));
+            eventRepository<span class="pl-k">.</span>save(<span class="pl-k">new</span> <span class="pl-smi">Event</span>(<span class="pl-s"><span class="pl-pds">"</span>Boxercise<span class="pl-pds">"</span></span>, 
+                <span class="pl-c1">5</span>,
+                <span class="pl-s"><span class="pl-pds">"</span>7pm<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>8pm<span class="pl-pds">"</span></span>));
+        };      
+    }</pre></div>
+
+<p>If we relaunch the application now, and use http GET on http://localhost:8080/timetable we should see something like this:</p>
+
+<pre><code>[
+  {
+    "id": 1,
+    "title": "Yoga",
+    "day": 4,
+    "startTime": "8pm",
+    "endTime": "9pm"
+  },
+  {
+    "id": 2,
+    "title": "Boxercise",
+    "day": 5,
+    "startTime": "7pm",
+    "endTime": "8pm"
+  }
+]
 </code></pre>
 
 <p>On to adding the remainder of the API</p>
