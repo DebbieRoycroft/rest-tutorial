@@ -26,17 +26,21 @@
 <h3>
 <a id="step-1-set-up-the-project" class="anchor" href="#step-1-set-up-the-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Step 1: Set up the project</h3>
 
-<p>In Eclipse, if you have Spring Tool Suite (STS) plugin installed, you can start a new spring starter project:
-<img src="./screenshots/newproject.png" alt=""></p>
+<p>In Eclipse, if you have Spring Tool Suite (STS) plugin installed, you can start a new spring starter project:</p>
 
-<p>Set up details of the project like this - we're using Java 1.8, and Maven to build We're just going to select actuator and web for now, we can add more capabilities later on by editing the Maven pom.xml file.
-<img src="./screenshots/springstarter.png" alt=""></p>
+<p><img src="./screenshots/newproject.png" alt=""></p>
 
-<p>We can just click on 'Finish' now, and we will get a zip file downloaded with our new project in, which Eclipse imports automatically. If you're not using Eclipse, or if you don't have the STS plugin you can still get a .zip starter project from <a href="https://start.spring.io/">The Spring Initializr website</a>.  Once the .zip project has been imported, it should look something like this:
-<img src="./screenshots/timetable-step0.png" alt=""></p>
+<p>Set up details of the project like this - we're using Java 1.8, and Maven to build We're just going to select actuator and web for now, we can add more capabilities later on by editing the Maven pom.xml file.</p>
 
-<p>Believe it or not we can already run this up and it will do things...Launch it in Eclipse
-<img src="./screenshots/run-as-springboot.png" alt=""></p>
+<p><img src="./screenshots/springstarter.png" alt=""></p>
+
+<p>We can just click on 'Finish' now, and we will get a zip file downloaded with our new project in, which Eclipse imports automatically. If you're not using Eclipse, or if you don't have the STS plugin you can still get a .zip starter project from <a href="https://start.spring.io/">The Spring Initializr website</a>.  Once the .zip project has been imported, it should look something like this:</p>
+
+<p><img src="./screenshots/timetable-step0.png" alt=""></p>
+
+<p>Believe it or not we can already run this up and it will do things...Launch it in Eclipse</p>
+
+<p><img src="./screenshots/run-as-springboot.png" alt=""></p>
 
 <p>Now in a browser navigate to http://localhost:8080/health</p>
 
@@ -649,6 +653,8 @@ Here's the <code>TimetableClass</code>:</p>
 
 <p>When the application is run it gives a page something like this:</p>
 
+<p><img src="./screenshots/client_frontpage.png" alt=""></p>
+
 <p>The second page, is there to create a new class, and uses the POST method on Event in the original webservice.  Here is the controller for the class page:</p>
 
 <div class="highlight highlight-java"><pre><span class="pl-k">package</span> <span class="pl-smi">timetable_mvc_client.controllers</span>;
@@ -720,7 +726,9 @@ Here's the <code>TimetableClass</code>:</p>
     &lt;/<span class="pl-ent">body</span>&gt;
 &lt;/<span class="pl-ent">html</span>&gt;</pre></div>
 
-<p>It's page looks something like this:</p>
+<p>Its page looks something like this:</p>
+
+<p><img src="./screenshots/client_frontpage.png" alt=""></p>
 
 <p>The labels and static text for both view pages come from <code>messages.properties</code> in <code>src/main/resources</code>:</p>
 
@@ -754,9 +762,14 @@ day7=Sunday
 
 <p>Full source code for this step is <a href="https://github.com/DebbieRoycroft/rest-tutorial/tree/step-6">here</a></p>
 
+<h3>
+<a id="conclusion" class="anchor" href="#conclusion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion</h3>
+
 <p>We've managed to put together two applications now, both are very simple, we don't have anything in the way of styling in the GUI, and we don't have a very advanced REST interface, but it should illustrate the basic parts needed for both a server and a client to be able to use a REST api.</p>
 
-<p>Spring Boot has plenty more to offer for REST apis:</p>
+<p>We've done very little to change the default configuration, Spring Boot works out of the box.  If we did need to customise things though, there are some things that can be changed by adding settings in the applications.properties file, and all the annotations and configurations normally there in Spring are still available and we can access them to change our application.</p>
+
+<p>If you're interested in looking at this further, Spring Boot also has plenty more to offer for REST apis:</p>
 
 <ul>
 <li> Spring Security can be added to control access to your interfaces or UIs</li>
